@@ -233,6 +233,24 @@ div      { simbolo = simb_div;
           return FECHA_CHAVES;
  }
 
+\>  { simbolo = simb_maior;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" maior ");
+          return MAIOR;
+ }
+
+\<  { simbolo = simb_menor;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" menor ");
+          return MENOR;
+ }
+
+\=  { simbolo = simb_igual;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" igual ");
+          return IGUAL;
+ }
+
 {ident} { simbolo = simb_identificador;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" ident  ");

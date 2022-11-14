@@ -24,7 +24,8 @@ typedef enum simbolos {
   simb_abre_parenteses, simb_fecha_parenteses,
   simb_abre_colchetes, simb_fecha_colchetes,
   simb_abre_chaves, simb_fecha_chaves,
-  simb_identificador, simb_numero
+  simb_identificador, simb_numero, simb_maior,
+  simb_menor, simb_igual
 } simbolos;
 
 
