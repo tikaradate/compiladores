@@ -23,7 +23,8 @@ char mepa_buf[128];
 %token ABRE_PARENTESES FECHA_PARENTESES
 %token ABRE_COLCHETES FECHA_COLCHETES
 %token ABRE_CHAVES FECHA_CHAVES
-%token IDENT MAIOR MENOR IGUAL
+%token IDENT MAIOR MENOR IGUAL MAIS MENOS
+%token VEZES
 
 %%
 
@@ -84,10 +85,43 @@ lista_idents: lista_idents VIRGULA IDENT
 
 
 comando_composto: T_BEGIN comandos T_END
-
-comandos:
 ;
 
+comandos: expressao PONTO_E_VIRGULA | comandos PONTO_E_VIRGULA expressao ;
+
+
+expressao   : expressao_simples relacao expressao_simples 
+            | expressao_simples 
+; /* ppc: acho que não precisa de regra auxiliar */
+
+relacao     : IGUAL 
+            | MENOR MAIOR
+            | MENOR
+            | MENOR IGUAL
+            | MAIOR IGUAL
+            | MAIOR
+;
+
+expressao_simples : expressao_simples mais_menos_or termo
+                  | mais_menos_vazio termo
+;
+
+mais_menos_vazio  : MAIS | MENOS | ;
+
+mais_menos_or     : MAIS | MENOS | OR ;
+
+termo             : termo vezes_div_and fator
+                  | fator
+;
+
+vezes_div_and     : VEZES | DIV | AND ;
+
+fator             : variavel 
+                  | ABRE_PARENTESES expressao FECHA_PARENTESES /* ppc - acho que precisa dos parenteses */
+                  | NOT fator 
+;
+
+variavel          : IDENT ;
 
 %%
 
