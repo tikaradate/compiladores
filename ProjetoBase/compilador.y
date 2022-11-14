@@ -11,6 +11,7 @@
 #include "compilador.h"
 
 int num_vars;
+char mepa_buf[128];
 
 %}
 
@@ -51,7 +52,10 @@ parte_declara_vars:  var
 ;
 
 
-var         : { } VAR declara_vars
+var         : { num_vars = 0; } VAR declara_vars { 
+               sprintf(mepa_buf, "AMEM %d", num_vars);
+               geraCodigo(NULL, mepa_buf);
+               }
             |
 ;
 
@@ -62,8 +66,7 @@ declara_vars: declara_vars declara_var
 declara_var : { }
               lista_id_var DOIS_PONTOS
               tipo
-              { /* AMEM */
-              }
+              { /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
               PONTO_E_VIRGULA
 ;
 
@@ -71,8 +74,8 @@ tipo        : IDENT
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT
-              { /* insere �ltima vars na tabela de s�mbolos */ }
-            | IDENT { /* insere vars na tabela de s�mbolos */}
+              { num_vars++; /* insere �ltima vars na tabela de s�mbolos */ }
+            | IDENT { num_vars++; /* insere vars na tabela de s�mbolos */}
 ;
 
 lista_idents: lista_idents VIRGULA IDENT

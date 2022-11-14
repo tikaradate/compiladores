@@ -27,27 +27,27 @@ Gramática
 
     0 $accept: programa $end
 
-    1 $@1: %empty
+    1 $@1: ε
 
     2 programa: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco PONTO
 
-    3 $@2: %empty
+    3 $@2: ε
 
     4 bloco: parte_declara_vars $@2 comando_composto
 
     5 parte_declara_vars: var
 
-    6 $@3: %empty
+    6 $@3: ε
 
     7 var: $@3 VAR declara_vars
-    8    | %empty
+    8    | ε
 
     9 declara_vars: declara_vars declara_var
    10             | declara_var
 
-   11 $@4: %empty
+   11 $@4: ε
 
-   12 $@5: %empty
+   12 $@5: ε
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA
 
@@ -61,7 +61,7 @@ Gramática
 
    19 comando_composto: T_BEGIN comandos T_END
 
-   20 comandos: %empty
+   20 comandos: ε
 
 
 Terminais, com as regras onde eles aparecem
