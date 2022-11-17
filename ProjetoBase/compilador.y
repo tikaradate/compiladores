@@ -9,8 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "compilador.h"
+#include "tabela_simb/tabela_simb.h"
+#include "tabela_simb/simbolo.h"
 
 int num_vars;
+int nivel_lex;
+
+char mepa_buf[128];
+struct tabela_de_simbolos *ts;
+struct simbolo s;
+union tipo ti;
+
 
 %}
 
@@ -22,12 +31,14 @@ int num_vars;
 %token ABRE_PARENTESES FECHA_PARENTESES
 %token ABRE_COLCHETES FECHA_COLCHETES
 %token ABRE_CHAVES FECHA_CHAVES
-%token IDENT
+%token IDENT MAIOR MENOR IGUAL MAIS MENOS
+%token VEZES
 
 %%
 
 programa    :{
              geraCodigo (NULL, "INPP");
+             nivel_lex = 0;
              }
              PROGRAM IDENT
              ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA
@@ -39,9 +50,14 @@ programa    :{
 bloco       :
               parte_declara_vars
               {
+               nivel_lex++;
               }
 
               comando_composto
+
+              {
+               nivel_lex--;
+              }
               ;
 
 
@@ -51,7 +67,10 @@ parte_declara_vars:  var
 ;
 
 
-var         : { } VAR declara_vars
+var         : { num_vars = 0; } VAR declara_vars { 
+               sprintf(mepa_buf, "AMEM %d", num_vars);
+               geraCodigo(NULL, mepa_buf);
+               }
             |
 ;
 
@@ -62,17 +81,27 @@ declara_vars: declara_vars declara_var
 declara_var : { }
               lista_id_var DOIS_PONTOS
               tipo
-              { /* AMEM */
-              }
+              { /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
               PONTO_E_VIRGULA
 ;
 
 tipo        : IDENT
 ;
 
-lista_id_var: lista_id_var VIRGULA IDENT
-              { /* insere �ltima vars na tabela de s�mbolos */ }
-            | IDENT { /* insere vars na tabela de s�mbolos */}
+lista_id_var: lista_id_var VIRGULA IDENT{ 
+               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
+               ti.var.deslocamento = num_vars;
+               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               push(&ts, s);
+               num_vars++;
+            }
+            | IDENT { 
+               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
+               ti.var.deslocamento = num_vars;
+               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               push(&ts, s);
+               num_vars++; 
+            }
 ;
 
 lista_idents: lista_idents VIRGULA IDENT
@@ -81,10 +110,43 @@ lista_idents: lista_idents VIRGULA IDENT
 
 
 comando_composto: T_BEGIN comandos T_END
-
-comandos:
 ;
 
+comandos: expressao PONTO_E_VIRGULA | comandos PONTO_E_VIRGULA expressao | ;
+
+
+expressao   : expressao_simples relacao expressao_simples 
+            | expressao_simples 
+; /* ppc: acho que não precisa de regra auxiliar */
+
+relacao     : IGUAL 
+            | MENOR MAIOR
+            | MENOR
+            | MENOR IGUAL
+            | MAIOR IGUAL
+            | MAIOR
+;
+
+expressao_simples : expressao_simples mais_menos_or termo
+                  | mais_menos_vazio termo
+;
+
+mais_menos_vazio  : MAIS | MENOS | ;
+
+mais_menos_or     : MAIS | MENOS | OR ;
+
+termo             : termo vezes_div_and fator
+                  | fator
+;
+
+vezes_div_and     : VEZES | DIV | AND ;
+
+fator             : variavel 
+                  | ABRE_PARENTESES expressao FECHA_PARENTESES /* ppc - acho que precisa dos parenteses */
+                  | NOT fator 
+;
+
+variavel          : IDENT ;
 
 %%
 
@@ -107,6 +169,7 @@ int main (int argc, char** argv) {
 /* -------------------------------------------------------------------
  *  Inicia a Tabela de S�mbolos
  * ------------------------------------------------------------------- */
+   inicializa(&ts);
 
    yyin=fp;
    yyparse();

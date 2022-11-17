@@ -7,6 +7,12 @@ enum tipo_simbolo{
     procedimento
 };
 
+enum tipo_variavel{
+    pas_integer,
+    pas_float,
+    pas_boolean
+};
+
 /* Três tipos de símbolos */
 struct variavel{
     int tipo;
