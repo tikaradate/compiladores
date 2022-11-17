@@ -9,9 +9,17 @@
 #include <stdlib.h>
 #include <string.h>
 #include "compilador.h"
+#include "tabela_simb/tabela_simb.h"
+#include "tabela_simb/simbolo.h"
 
 int num_vars;
+int nivel_lex;
+
 char mepa_buf[128];
+struct tabela_de_simbolos *ts;
+struct simbolo s;
+union tipo ti;
+
 
 %}
 
@@ -30,6 +38,7 @@ char mepa_buf[128];
 
 programa    :{
              geraCodigo (NULL, "INPP");
+             nivel_lex = 0;
              }
              PROGRAM IDENT
              ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA
@@ -41,9 +50,14 @@ programa    :{
 bloco       :
               parte_declara_vars
               {
+               nivel_lex++;
               }
 
               comando_composto
+
+              {
+               nivel_lex--;
+              }
               ;
 
 
@@ -74,9 +88,20 @@ declara_var : { }
 tipo        : IDENT
 ;
 
-lista_id_var: lista_id_var VIRGULA IDENT
-              { num_vars++; /* insere �ltima vars na tabela de s�mbolos */ }
-            | IDENT { num_vars++; /* insere vars na tabela de s�mbolos */}
+lista_id_var: lista_id_var VIRGULA IDENT{ 
+               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
+               ti.var.deslocamento = num_vars;
+               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               push(&ts, s);
+               num_vars++;
+            }
+            | IDENT { 
+               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
+               ti.var.deslocamento = num_vars;
+               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               push(&ts, s);
+               num_vars++; 
+            }
 ;
 
 lista_idents: lista_idents VIRGULA IDENT
@@ -144,6 +169,7 @@ int main (int argc, char** argv) {
 /* -------------------------------------------------------------------
  *  Inicia a Tabela de S�mbolos
  * ------------------------------------------------------------------- */
+   inicializa(&ts);
 
    yyin=fp;
    yyparse();

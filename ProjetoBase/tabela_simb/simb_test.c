@@ -34,6 +34,7 @@ int main(){
     printf("%d\n", ts->qtd);
 
     struct simbolo s = pop(&ts);
+    printf("%s\n", s.identificador);
     printf("%d\n", ts->qtd);
 
 
