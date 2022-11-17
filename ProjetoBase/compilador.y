@@ -87,7 +87,7 @@ lista_idents: lista_idents VIRGULA IDENT
 comando_composto: T_BEGIN comandos T_END
 ;
 
-comandos: expressao PONTO_E_VIRGULA | comandos PONTO_E_VIRGULA expressao ;
+comandos: expressao PONTO_E_VIRGULA | comandos PONTO_E_VIRGULA expressao | ;
 
 
 expressao   : expressao_simples relacao expressao_simples 
