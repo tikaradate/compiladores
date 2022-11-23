@@ -22,7 +22,7 @@
 #include "compilador.tab.h"
 
 //#define IMPRIME(STR) {};
-#define IMPRIME(STR) printf("%s    # %s \n", STR, token);
+#define IMPRIME(STR) printf("%s\t# %s \n", STR, token);
 
 int nl = 1;
 
@@ -275,5 +275,10 @@ div      { simbolo = simb_div;
           return IDENT;
         }
 
+{numero} { simbolo =  simb_numero;
+            strncpy(token, yytext, TAM_TOKEN);
+            IMPRIME (" numero ");
+            return NUMERO;
+        }
 
 %%

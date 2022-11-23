@@ -14,6 +14,7 @@
 
 int num_vars;
 int nivel_lex;
+int pos_var;
 
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
@@ -32,7 +33,13 @@ union tipo ti;
 %token ABRE_COLCHETES FECHA_COLCHETES
 %token ABRE_CHAVES FECHA_CHAVES
 %token IDENT MAIOR MENOR IGUAL MAIS MENOS
-%token VEZES
+%token VEZES NUMERO
+
+%union{
+   char * str;
+}
+
+%type <str> variavel;
 
 %%
 
@@ -112,8 +119,25 @@ lista_idents: lista_idents VIRGULA IDENT
 comando_composto: T_BEGIN comandos T_END
 ;
 
-comandos: expressao PONTO_E_VIRGULA | comandos PONTO_E_VIRGULA expressao | ;
+comandos: comando | comandos PONTO_E_VIRGULA comando;
 
+comando: numero_ou_nao comando_sem_rotulo;
+
+numero_ou_nao: NUMERO DOIS_PONTOS | ;
+
+comando_sem_rotulo: atribuicao 
+                  | expressao 
+                  |
+;
+
+
+atribuicao: variavel ATRIBUICAO expressao {
+   /* busca posição da variavel */
+   printf("vou atribuir a variavel %s\n", $1);
+   // busca(&ts, $1);
+   // sprintf(mepa_buf, "ARMZ %d %d", nivel_lex, cur_deslocamento);
+}
+;
 
 expressao   : expressao_simples relacao expressao_simples 
             | expressao_simples 
@@ -144,9 +168,10 @@ vezes_div_and     : VEZES | DIV | AND ;
 fator             : variavel 
                   | ABRE_PARENTESES expressao FECHA_PARENTESES /* ppc - acho que precisa dos parenteses */
                   | NOT fator 
+                  | NUMERO
 ;
 
-variavel          : IDENT ;
+variavel          :  IDENT { $$ = strdup(token); } ;
 
 %%
 
