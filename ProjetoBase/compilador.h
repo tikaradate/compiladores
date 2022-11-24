@@ -26,7 +26,8 @@ typedef enum simbolos {
   simb_abre_chaves, simb_fecha_chaves,
   simb_identificador, simb_numero, simb_maior,
   simb_menor, simb_igual, simb_mais, simb_menos,
-  simb_vezes
+  simb_vezes, simb_diferente, simb_menor_igual,
+  simb_maior_igual
 } simbolos;
 
 

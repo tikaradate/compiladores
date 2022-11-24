@@ -33,13 +33,16 @@ union tipo ti;
 %token ABRE_COLCHETES FECHA_COLCHETES
 %token ABRE_CHAVES FECHA_CHAVES
 %token IDENT MAIOR MENOR IGUAL MAIS MENOS
-%token VEZES NUMERO
+%token VEZES NUMERO DIFERENTE MENOR_IGUAL
+%token MAIOR_IGUAL
 
 %union{
-   char * str;
+   char * str;  // define o tipo str
+   int int_val; // define o tipo int_val
 }
 
-%type <str> variavel;
+%type <str> variavel, mais_menos_or; // atribui o tipo str a regra variavel
+%type <int_val> expressao_simples; 
 
 %%
 
@@ -133,9 +136,16 @@ comando_sem_rotulo: atribuicao
 
 atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
-   printf("vou atribuir a variavel %s\n", $1);
-   // busca(&ts, $1);
-   // sprintf(mepa_buf, "ARMZ %d %d", nivel_lex, cur_deslocamento);
+   // printf("vou atribuir a variavel %s\n", $1);
+   struct simbolo *sptr;
+   sptr = busca(&ts, $1);
+
+   /* Talvez não precise disso aq */
+   sprintf(mepa_buf, "CRCT %d", $3);
+   geraCodigo(NULL, mepa_buf);
+
+   sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
+   geraCodigo(NULL, mepa_buf);
 }
 ;
 
@@ -143,11 +153,11 @@ expressao   : expressao_simples relacao expressao_simples
             | expressao_simples 
 ; /* ppc: acho que não precisa de regra auxiliar */
 
-relacao     : IGUAL 
-            | MENOR MAIOR
+relacao     : IGUAL
+            | DIFERENTE
             | MENOR
-            | MENOR IGUAL
-            | MAIOR IGUAL
+            | MENOR_IGUAL
+            | MAIOR_IGUAL
             | MAIOR
 ;
 
@@ -155,9 +165,13 @@ expressao_simples : expressao_simples mais_menos_or termo
                   | mais_menos_vazio termo
 ;
 
-mais_menos_vazio  : MAIS | MENOS | ;
+mais_menos_vazio  : MAIS 
+                  | MENOS 
+                  | ;
 
-mais_menos_or     : MAIS | MENOS | OR ;
+mais_menos_or     : MAIS /*{ $$ = strdup("SOMA"); } */
+                  | MENOS/*{ $$ = strdup("SUBT") }*/
+                  | OR ; /*Não sei como eh o or*/
 
 termo             : termo vezes_div_and fator
                   | fator
