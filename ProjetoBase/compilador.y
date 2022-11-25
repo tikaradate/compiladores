@@ -41,8 +41,13 @@ union tipo ti;
    int int_val; // define o tipo int_val
 }
 
-%type <str> variavel, mais_menos_or; // atribui o tipo str a regra variavel
-%type <int_val> expressao_simples; 
+%type <str> variavel; // atribui o tipo str a regra variavel
+%type <str> mais_menos_or;
+%type <str> NUMERO;
+%type <int_val> expressao;
+%type <int_val> expressao_simples;
+%type <int_val> fator;
+%type <int_val> termo;
 
 %%
 
@@ -138,7 +143,7 @@ atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
    // printf("vou atribuir a variavel %s\n", $1);
    struct simbolo *sptr;
-   sptr = busca(&ts, $1);
+   sptr = busca( &ts, $1 );
 
    /* Talvez não precise disso aq */
    sprintf(mepa_buf, "CRCT %d", $3);
@@ -150,8 +155,8 @@ atribuicao: variavel ATRIBUICAO expressao {
 ;
 
 expressao   : expressao_simples relacao expressao_simples 
-            | expressao_simples 
-; /* ppc: acho que não precisa de regra auxiliar */
+            | expressao_simples { $$ = $1; } 
+; 
 
 relacao     : IGUAL
             | DIFERENTE
@@ -162,27 +167,28 @@ relacao     : IGUAL
 ;
 
 expressao_simples : expressao_simples mais_menos_or termo
-                  | mais_menos_vazio termo
+                  | mais_menos_vazio termo { $$ = $2; }
 ;
 
 mais_menos_vazio  : MAIS 
                   | MENOS 
-                  | ;
+                  | 
+;
 
-mais_menos_or     : MAIS /*{ $$ = strdup("SOMA"); } */
-                  | MENOS/*{ $$ = strdup("SUBT") }*/
-                  | OR ; /*Não sei como eh o or*/
-
+mais_menos_or     : MAIS { /*{ $$ = strdup("SOMA"); } */ }
+                  | MENOS { /*{ $$ = strdup("SUBT") }*/ }
+                  | OR { /*Não sei como eh o or*/ }
+; 
 termo             : termo vezes_div_and fator
-                  | fator
+                  | fator { $$ = $1; }
 ;
 
 vezes_div_and     : VEZES | DIV | AND ;
 
-fator             : variavel 
-                  | ABRE_PARENTESES expressao FECHA_PARENTESES /* ppc - acho que precisa dos parenteses */
-                  | NOT fator 
-                  | NUMERO
+fator             : variavel { /* tem que buscar o valor da variavel */ } 
+                  | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
+                  {/*| NOT fator */}
+                  | NUMERO { $$ = atoi( $1 ); }
 ;
 
 variavel          :  IDENT { $$ = strdup(token); } ;

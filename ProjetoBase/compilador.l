@@ -270,19 +270,19 @@ div      { simbolo = simb_div;
  }
 
 \<\> { simbolo = simb_diferente;
-          strncpy (token, yytext TAM_TOKEN);
+          strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" diferente ");
           return DIFERENTE;
  }
 
 \<\= { simbolo = simb_menor_igual;
-          strncpy (token, yytext TAM_TOKEN);
+          strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" menor ou igual ");
           return MENOR_IGUAL;
  }
 
 \>\= { simbolo = simb_maior_igual;
-          strncpy (token, yytext TAM_TOKEN);
+          strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" maior ou igual ");
           return MAIOR_IGUAL;
  }
