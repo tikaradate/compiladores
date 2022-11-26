@@ -1,6 +1,7 @@
 program exemplo75 (input, output);
 var m,n :  integer;
+    a,b :  integer;
 begin
-    m := 1;
+    a := 666;
 end.
 

@@ -156,7 +156,7 @@ Terminals, with rules where they appear
     MAIS (293) 39 42
     MENOS (294) 40 43
     VEZES (295) 47
-    NUMERO <str> (296) 23 53
+    NUMERO (296) 23 53
     DIFERENTE (297) 32
     MENOR_IGUAL (298) 34
     MAIOR_IGUAL (299) 35

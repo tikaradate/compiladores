@@ -43,7 +43,6 @@ union tipo ti;
 
 %type <str> variavel; // atribui o tipo str a regra variavel
 %type <str> mais_menos_or;
-%type <str> NUMERO;
 %type <int_val> expressao;
 %type <int_val> expressao_simples;
 %type <int_val> fator;
@@ -141,11 +140,10 @@ comando_sem_rotulo: atribuicao
 
 atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
-   // printf("vou atribuir a variavel %s\n", $1);
    struct simbolo *sptr;
    sptr = busca( &ts, $1 );
 
-   /* Talvez não precise disso aq */
+   /* vou precisar mudar esses calculos pro mepa, mas o teste ta legal */
    sprintf(mepa_buf, "CRCT %d", $3);
    geraCodigo(NULL, mepa_buf);
 
@@ -188,7 +186,7 @@ vezes_div_and     : VEZES | DIV | AND ;
 fator             : variavel { /* tem que buscar o valor da variavel */ } 
                   | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
                   {/*| NOT fator */}
-                  | NUMERO { $$ = atoi( $1 ); }
+                  | NUMERO { $$ = atoi(token); }
 ;
 
 variavel          :  IDENT { $$ = strdup(token); } ;
