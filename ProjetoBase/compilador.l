@@ -289,7 +289,7 @@ div      { simbolo = simb_div;
 
 {ident} { simbolo = simb_identificador;
           strncpy (token, yytext, TAM_TOKEN);
-          IMPRIME(" ident  ");
+          IMPRIME(" ident ");
           return IDENT;
         }
 

@@ -1,7 +1,15 @@
      INPP
      AMEM 4
-     CRCT 666
+     CRCT 1
      CRCT 2
      SOMA
+     CRCT 3
+     CRCT 4
+     SOMA
+     SUBT
      ARMZ 0 2
+     CRVL 0 2
+     CRVL 0 2
+     SOMA
+     ARMZ 0 3
      PARA

@@ -2,6 +2,8 @@
 // Testar se funciona corretamente o empilhamento de par�metros
 // passados por valor ou por refer�ncia.
 
+// Ainda precisa de suporte para booleanos
+
 
 %{
 #include <stdio.h>
@@ -18,7 +20,7 @@ int pos_var;
 
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
-struct simbolo s;
+struct simbolo s, *sptr;
 union tipo ti;
 
 
@@ -95,11 +97,12 @@ declara_vars: declara_vars declara_var
 declara_var : { }
               lista_id_var DOIS_PONTOS
               tipo
-              { /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
+              { 
+              /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
               PONTO_E_VIRGULA
 ;
 
-tipo        : IDENT
+tipo        : IDENT {  }
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT{ 
@@ -140,7 +143,6 @@ comando_sem_rotulo: atribuicao
 
 atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
-   struct simbolo *sptr;
    sptr = busca( &ts, $1 );
 
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
@@ -179,12 +181,16 @@ termo             : termo vezes_div_and fator
 
 vezes_div_and     : VEZES | DIV | AND ;
 
-fator             : variavel { /* tem que buscar o valor da variavel */ } 
+fator             : variavel { 
+                     sptr = busca(&ts, $1);
+                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
+                     geraCodigo(NULL, mepa_buf);
+                  } 
                   | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
                   {/*| NOT fator */}
                   | NUMERO {
-                       sprintf (mepa_buf, "CRCT %d", atoi(token));
-                       geraCodigo(NULL, mepa_buf);
+                     sprintf (mepa_buf, "CRCT %d", atoi(token));
+                     geraCodigo(NULL, mepa_buf);
                   }
 ;
 
