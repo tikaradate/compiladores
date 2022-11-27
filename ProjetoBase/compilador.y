@@ -143,17 +143,13 @@ atribuicao: variavel ATRIBUICAO expressao {
    struct simbolo *sptr;
    sptr = busca( &ts, $1 );
 
-   /* vou precisar mudar esses calculos pro mepa, mas o teste ta legal */
-   sprintf(mepa_buf, "CRCT %d", $3);
-   geraCodigo(NULL, mepa_buf);
-
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
 }
 ;
 
 expressao   : expressao_simples relacao expressao_simples 
-            | expressao_simples { $$ = $1; } 
+            | expressao_simples  
 ; 
 
 relacao     : IGUAL
@@ -164,8 +160,8 @@ relacao     : IGUAL
             | MAIOR
 ;
 
-expressao_simples : expressao_simples mais_menos_or termo
-                  | mais_menos_vazio termo { $$ = $2; }
+expressao_simples : expressao_simples mais_menos_or termo { geraCodigo(NULL, $2); }
+                  | mais_menos_vazio termo { /* lidar com mais ou menos */ }
 ;
 
 mais_menos_vazio  : MAIS 
@@ -173,12 +169,12 @@ mais_menos_vazio  : MAIS
                   | 
 ;
 
-mais_menos_or     : MAIS { /*{ $$ = strdup("SOMA"); } */ }
-                  | MENOS { /*{ $$ = strdup("SUBT") }*/ }
+mais_menos_or     : MAIS { $$ = strdup("SOMA"); }
+                  | MENOS { $$ = strdup("SUBT"); } 
                   | OR { /*Não sei como eh o or*/ }
 ; 
 termo             : termo vezes_div_and fator
-                  | fator { $$ = $1; }
+                  | fator 
 ;
 
 vezes_div_and     : VEZES | DIV | AND ;
@@ -186,7 +182,10 @@ vezes_div_and     : VEZES | DIV | AND ;
 fator             : variavel { /* tem que buscar o valor da variavel */ } 
                   | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
                   {/*| NOT fator */}
-                  | NUMERO { $$ = atoi(token); }
+                  | NUMERO {
+                       sprintf (mepa_buf, "CRCT %d", atoi(token));
+                       geraCodigo(NULL, mepa_buf);
+                  }
 ;
 
 variavel          :  IDENT { $$ = strdup(token); } ;
