@@ -8,8 +8,14 @@
      SOMA
      SUBT
      ARMZ 0 2
-     CRVL 0 2
-     CRVL 0 2
+     CRCT 3
+     CRCT 4
+     CRCT 5
+     MULT
      SOMA
      ARMZ 0 3
+     CRVL 0 2
+     CRVL 0 3
+     MULT
+     ARMZ 0 0
      PARA

@@ -45,6 +45,7 @@ union tipo ti;
 
 %type <str> variavel; // atribui o tipo str a regra variavel
 %type <str> mais_menos_or;
+%type <str> vezes_div_and;
 %type <int_val> expressao;
 %type <int_val> expressao_simples;
 %type <int_val> fator;
@@ -175,11 +176,14 @@ mais_menos_or     : MAIS { $$ = strdup("SOMA"); }
                   | MENOS { $$ = strdup("SUBT"); } 
                   | OR { /*Não sei como eh o or*/ }
 ; 
-termo             : termo vezes_div_and fator
+termo             : termo vezes_div_and fator { geraCodigo (NULL, $2); }
                   | fator 
 ;
 
-vezes_div_and     : VEZES | DIV | AND ;
+vezes_div_and     : VEZES { $$ = strdup("MULT"); }
+                  | DIV { $$ = strdup("DIVI"); }
+                  | AND  {  } 
+;
 
 fator             : variavel { 
                      sptr = busca(&ts, $1);

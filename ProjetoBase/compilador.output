@@ -244,7 +244,7 @@ Nonterminals, with rules where they appear
     termo <int_val> (71)
         on left: 45 46
         on right: 37 38 45
-    vezes_div_and (72)
+    vezes_div_and <str> (72)
         on left: 47 48 49
         on right: 45
     fator <int_val> (73)

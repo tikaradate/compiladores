@@ -3,6 +3,7 @@ var m,n :  integer;
     a,b :  integer;
 begin
     a := (1 + 2) - ( 3 + 4 );
-    b := a+a;
+    b := 3 + 4 * 5;
+    m := a*b;
 end.
 
