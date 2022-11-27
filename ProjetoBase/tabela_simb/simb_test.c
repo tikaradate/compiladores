@@ -26,16 +26,29 @@ int main(){
 
 
     struct tabela_de_simbolos *ts;
-    inicializa(&ts);                 
-    push(&ts, proc);
-    push(&ts, proc);
-    push(&ts, proc);
-    push(&ts, proc);
-    printf("%d\n", ts->qtd);
+    inicializa(&ts);
+    printf("Procurando por '%s' antes de inserir\n", proc.identificador);
+    if(busca(&ts, proc.identificador)) printf("Achou simbolo\n");
+    else printf("Simbolo nao achado");
 
-    struct simbolo s = pop(&ts);
-    printf("%s\n", s.identificador);
-    printf("%d\n", ts->qtd);
+    push(&ts, proc);
+    push(&ts, proc);
+    push(&ts, proc);
+    push(&ts, proc);
+
+    printf("Procurando por '%s' depois de inserir\n", proc.identificador);
+    if(busca(&ts, proc.identificador)) printf("Achou simbolo\n");
+    else printf("Simbolo nao achado");
+    printf("A tabela tem %d simbolos\n", ts->qtd);
+
+    printf("Removendo 2 entradas\n");
+    remove_n(&ts, 2);
+    printf("A tabela agora tem %d simbolos\n", ts->qtd);
+
+
+    // struct simbolo s = pop(&ts);
+    // printf("%s\n", s.identificador);
+    // printf("%d\n", ts->qtd);
 
 
     return 0;
