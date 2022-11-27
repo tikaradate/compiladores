@@ -20,6 +20,6 @@ struct simbolo pop(struct tabela_de_simbolos **ts);
 
 // void topo(struct tabela_de_simbolos **ts);
 
-bool busca(struct tabela_de_simbolos **ts, struct simbolo s);
+struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome);
 
 #endif

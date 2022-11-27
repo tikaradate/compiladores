@@ -2,6 +2,8 @@
 // Testar se funciona corretamente o empilhamento de par�metros
 // passados por valor ou por refer�ncia.
 
+// Ainda precisa de suporte para booleanos
+
 
 %{
 #include <stdio.h>
@@ -18,7 +20,7 @@ int pos_var;
 
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
-struct simbolo s;
+struct simbolo s, *sptr;
 union tipo ti;
 
 
@@ -41,8 +43,13 @@ union tipo ti;
    int int_val; // define o tipo int_val
 }
 
-%type <str> variavel, mais_menos_or; // atribui o tipo str a regra variavel
-%type <int_val> expressao_simples; 
+%type <str> variavel; // atribui o tipo str a regra variavel
+%type <str> mais_menos_or;
+%type <str> vezes_div_and;
+%type <int_val> expressao;
+%type <int_val> expressao_simples;
+%type <int_val> fator;
+%type <int_val> termo;
 
 %%
 
@@ -91,11 +98,12 @@ declara_vars: declara_vars declara_var
 declara_var : { }
               lista_id_var DOIS_PONTOS
               tipo
-              { /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
+              { 
+              /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
               PONTO_E_VIRGULA
 ;
 
-tipo        : IDENT
+tipo        : IDENT {  }
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT{ 
@@ -136,13 +144,7 @@ comando_sem_rotulo: atribuicao
 
 atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
-   // printf("vou atribuir a variavel %s\n", $1);
-   struct simbolo *sptr;
-   sptr = busca(&ts, $1);
-
-   /* Talvez não precise disso aq */
-   sprintf(mepa_buf, "CRCT %d", $3);
-   geraCodigo(NULL, mepa_buf);
+   sptr = busca( &ts, $1 );
 
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
@@ -150,8 +152,8 @@ atribuicao: variavel ATRIBUICAO expressao {
 ;
 
 expressao   : expressao_simples relacao expressao_simples 
-            | expressao_simples 
-; /* ppc: acho que não precisa de regra auxiliar */
+            | expressao_simples  
+; 
 
 relacao     : IGUAL
             | DIFERENTE
@@ -161,28 +163,39 @@ relacao     : IGUAL
             | MAIOR
 ;
 
-expressao_simples : expressao_simples mais_menos_or termo
-                  | mais_menos_vazio termo
+expressao_simples : expressao_simples mais_menos_or termo { geraCodigo(NULL, $2); }
+                  | mais_menos_vazio termo { /* lidar com mais ou menos */ }
 ;
 
 mais_menos_vazio  : MAIS 
                   | MENOS 
-                  | ;
-
-mais_menos_or     : MAIS /*{ $$ = strdup("SOMA"); } */
-                  | MENOS/*{ $$ = strdup("SUBT") }*/
-                  | OR ; /*Não sei como eh o or*/
-
-termo             : termo vezes_div_and fator
-                  | fator
+                  | 
 ;
 
-vezes_div_and     : VEZES | DIV | AND ;
+mais_menos_or     : MAIS { $$ = strdup("SOMA"); }
+                  | MENOS { $$ = strdup("SUBT"); } 
+                  | OR { /*Não sei como eh o or*/ }
+; 
+termo             : termo vezes_div_and fator { geraCodigo (NULL, $2); }
+                  | fator 
+;
 
-fator             : variavel 
-                  | ABRE_PARENTESES expressao FECHA_PARENTESES /* ppc - acho que precisa dos parenteses */
-                  | NOT fator 
-                  | NUMERO
+vezes_div_and     : VEZES { $$ = strdup("MULT"); }
+                  | DIV { $$ = strdup("DIVI"); }
+                  | AND  {  } 
+;
+
+fator             : variavel { 
+                     sptr = busca(&ts, $1);
+                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
+                     geraCodigo(NULL, mepa_buf);
+                  } 
+                  | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
+                  {/*| NOT fator */}
+                  | NUMERO {
+                     sprintf (mepa_buf, "CRCT %d", atoi(token));
+                     geraCodigo(NULL, mepa_buf);
+                  }
 ;
 
 variavel          :  IDENT { $$ = strdup(token); } ;

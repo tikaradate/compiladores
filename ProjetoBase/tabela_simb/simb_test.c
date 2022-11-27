@@ -5,7 +5,7 @@
 #include "simbolo.h"
 
 int main(){
-    struct simbolo var, param, proc;
+    struct simbolo proc;
     union tipo conteudo;
     // conteudo.var.tipo = 0;
     // conteudo.var.deslocamento = 99;
@@ -32,6 +32,10 @@ int main(){
     push(&ts, proc);
     push(&ts, proc);
     printf("%d\n", ts->qtd);
+
+    struct simbolo *si = busca(&ts, "soma");
+    if (si) printf("busca %s\n", si->identificador);
+    else printf("deu ruim\n");
 
     struct simbolo s = pop(&ts);
     printf("%s\n", s.identificador);

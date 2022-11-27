@@ -35,11 +35,11 @@ struct simbolo pop(struct tabela_de_simbolos **ts){
     return ret;
 }
 
-bool busca(struct tabela_de_simbolos **ts, struct simbolo s){
+struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome){
     int indice = (*ts)->qtd-1;
     while(indice >= 0){
-        struct simbolo atual =(*ts)->simbolos[indice--]; 
-        if(memcmp(&atual, &s, sizeof(struct simbolo))) return true;
+        struct simbolo *atual = &( (*ts)->simbolos[indice--] );
+        if (!strcmp( atual->identificador, nome )) return atual;
     }
-    return false;
+    return NULL;
 }
