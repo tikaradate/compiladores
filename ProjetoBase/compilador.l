@@ -32,6 +32,8 @@ pulo_linha [\n]
 
 descarte [\t ]+
 
+tipo (integer|boolean)
+
 ident [a-zA-Z][a-zA-Z0-9]*
 
 numero [0-9]+
@@ -286,6 +288,24 @@ div      { simbolo = simb_div;
           IMPRIME(" maior ou igual ");
           return MAIOR_IGUAL;
  }
+
+true { simbolo = simb_true;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" true ");
+          return PAS_TRUE;
+ }
+
+false { simbolo = simb_false;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" false ");
+          return PAS_FALSE;
+ }
+
+{tipo} { simbolo = simb_tipo;
+          strncpy (token, yytext, TAM_TOKEN);
+          IMPRIME(" tipo ");
+          return TIPO;
+}
 
 {ident} { simbolo = simb_identificador;
           strncpy (token, yytext, TAM_TOKEN);

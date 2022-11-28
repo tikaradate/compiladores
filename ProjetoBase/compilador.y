@@ -21,7 +21,7 @@ int pos_var;
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
-union tipo ti;
+union cat_conteudo ti;
 
 
 %}
@@ -36,7 +36,7 @@ union tipo ti;
 %token ABRE_CHAVES FECHA_CHAVES
 %token IDENT MAIOR MENOR IGUAL MAIS MENOS
 %token VEZES NUMERO DIFERENTE MENOR_IGUAL
-%token MAIOR_IGUAL
+%token MAIOR_IGUAL PAS_TRUE PAS_FALSE TIPO
 
 %union{
    char * str;  // define o tipo str
@@ -103,7 +103,7 @@ declara_var : { }
               PONTO_E_VIRGULA
 ;
 
-tipo        : IDENT {  }
+tipo        : TIPO {  }
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT{ 
@@ -146,7 +146,7 @@ atribuicao: variavel ATRIBUICAO expressao {
    /* busca posição da variavel */
    sptr = busca( &ts, $1 );
 
-   sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
+   sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
 }
 ;
@@ -187,7 +187,7 @@ vezes_div_and     : VEZES { $$ = strdup("MULT"); }
 
 fator             : variavel { 
                      sptr = busca(&ts, $1);
-                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->tipo.var.deslocamento);
+                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
                      geraCodigo(NULL, mepa_buf);
                   } 
                   | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
