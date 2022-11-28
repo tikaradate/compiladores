@@ -6,7 +6,7 @@
 
 int main(){
     struct simbolo var, param, proc;
-    union tipo conteudo;
+    union cat_conteudo conteudo;
     // conteudo.var.tipo = 0;
     // conteudo.var.deslocamento = 99;
     // var = cria_simbolo("teste", 123, 532, variavel, conteudo);

@@ -43,8 +43,18 @@ bool busca(struct tabela_de_simbolos **ts, char *ident){
     int indice = (*ts)->qtd-1;
     while(indice >= 0){
         struct simbolo atual =(*ts)->simbolos[indice--];
-        printf("ident: %s, atual.ident: %s\n", ident, atual.identificador);
         if(strcmp(ident, atual.identificador) == 0) return true;
     }
     return false;
+}
+
+void atribui_tipo(struct tabela_de_simbolos **ts, int categoria, int tipo, int qtd){
+    int indice = (*ts)->qtd-1;
+    for(int i = 0; i < qtd; ++i){
+        (*ts)->simbolos[indice - i].conteudo.var.tipo = tipo;
+        /* acredito que isso atribua tanto pra variavel quanto
+        quanto para parametros, por causa da forma que a union
+        funciona, se quiser um jeito sem esse xunxo você faria
+        um if com a categoria */
+    }
 }
