@@ -14,12 +14,14 @@ struct tabela_de_simbolos{
 
 void inicializa(struct tabela_de_simbolos **ts);
 
-void push(struct tabela_de_simbolos **ts, struct simbolo s);
+void push(struct tabela_de_simbolos **ts, struct simbolo);
 
-struct simbolo pop(struct tabela_de_simbolos **ts);
+struct simbolo pop(struct tabela_de_simbolos **ts) ;
 
-// void topo(struct tabela_de_simbolos **ts);
+void remove_n(struct tabela_de_simbolos **ts, int n);
 
 struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome);
+
+void atribui_tipo(struct tabela_de_simbolos **, int categoria, int tipo, int qtd);
 
 #endif

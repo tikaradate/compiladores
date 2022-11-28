@@ -35,6 +35,10 @@ struct simbolo pop(struct tabela_de_simbolos **ts){
     return ret;
 }
 
+void remove_n(struct tabela_de_simbolos **ts, int n){
+    (*ts)->qtd -= n;
+}
+
 struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome){
     int indice = (*ts)->qtd-1;
     while(indice >= 0){
@@ -42,4 +46,15 @@ struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome){
         if (!strcmp( atual->identificador, nome )) return atual;
     }
     return NULL;
+}
+
+void atribui_tipo(struct tabela_de_simbolos **ts, int categoria, int tipo, int qtd){
+    int indice = (*ts)->qtd-1;
+    for(int i = 0; i < qtd; ++i){
+        (*ts)->simbolos[indice - i].conteudo.var.tipo = tipo;
+        /* acredito que isso atribua tanto pra variavel quanto
+        quanto para parametros, por causa da forma que a union
+        funciona, se quiser um jeito sem esse xunxo você faria
+        um if com a categoria */
+    }
 }
