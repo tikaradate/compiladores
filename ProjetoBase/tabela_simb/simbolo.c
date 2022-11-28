@@ -3,7 +3,7 @@
 
 #include "simbolo.h"
 
-struct simbolo cria_simbolo(char *ident, int cat, int niv, int tipo_simb, union cat_conteudo conteudo){
+struct simbolo cria_simbolo(char *ident, int cat, int niv, union cat_conteudo conteudo){
     struct simbolo s;
     s.identificador = malloc(strlen(ident)+1); 
     strcpy(s.identificador, ident);

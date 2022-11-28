@@ -204,7 +204,7 @@ Não terminais com as regras onde eles aparecem
     $@5 (59)
         à esquerda: 12
         à direita: 13
-    tipo (60)
+    tipo <int_val> (60)
         à esquerda: 14
         à direita: 13
     lista_id_var (61)

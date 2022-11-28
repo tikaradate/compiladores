@@ -17,12 +17,18 @@
 int num_vars;
 int nivel_lex;
 int pos_var;
+int qt_tipo_atual;
 
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
 union cat_conteudo ti;
 
+int str2type(const char *str){
+   if (!strcmp(str, "integer")) return pas_integer;
+   if (!strcmp(str, "boolean")) return pas_boolean;
+   return undefined_type;
+}
 
 %}
 
@@ -50,6 +56,7 @@ union cat_conteudo ti;
 %type <int_val> expressao_simples;
 %type <int_val> fator;
 %type <int_val> termo;
+%type <int_val> tipo;
 
 %%
 
@@ -95,30 +102,27 @@ declara_vars: declara_vars declara_var
             | declara_var
 ;
 
-declara_var : { }
+declara_var : { qt_tipo_atual = 0; }
               lista_id_var DOIS_PONTOS
               tipo
-              { 
-              /* AMEM (ppc - Pelo jeito essa é a forma burra?) */ }
+              { atribui_tipo(&ts, variavel, $4, qt_tipo_atual); }
               PONTO_E_VIRGULA
 ;
 
-tipo        : TIPO {  }
+tipo        : TIPO { $$ = str2type(token); }
 ;
 
-lista_id_var: lista_id_var VIRGULA IDENT{ 
-               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
+lista_id_var: lista_id_var VIRGULA IDENT {
                ti.var.deslocamento = num_vars;
-               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               s = cria_simbolo(token, variavel, nivel_lex, ti); 
                push(&ts, s);
-               num_vars++;
+               num_vars++; qt_tipo_atual++;
             }
             | IDENT { 
-               ti.var.tipo = pas_integer; /* TODO MUDAR ISTO */
                ti.var.deslocamento = num_vars;
-               s = cria_simbolo(token, variavel, nivel_lex, pas_integer, ti); /* TODO MUDAR O PAS_INTEGER */
+               s = cria_simbolo(token, variavel, nivel_lex, ti); 
                push(&ts, s);
-               num_vars++; 
+               num_vars++; qt_tipo_atual++;
             }
 ;
 

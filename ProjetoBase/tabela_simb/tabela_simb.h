@@ -22,6 +22,6 @@ void remove_n(struct tabela_de_simbolos **ts, int n);
 
 struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome);
 
-void atribui_tipo(struct tabela_de_simbolos **, int categoria, int tipo, int qtd);
+void atribui_tipo(struct tabela_de_simbolos **ts, int categoria, int tipo, int qtd);
 
 #endif
