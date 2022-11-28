@@ -20,7 +20,7 @@ struct simbolo pop(struct tabela_de_simbolos **ts) ;
 
 void remove_n(struct tabela_de_simbolos **ts, int n);
 
-bool busca(struct tabela_de_simbolos **ts, char *ident);
+struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome);
 
 void atribui_tipo(struct tabela_de_simbolos **, int categoria, int tipo, int qtd);
 

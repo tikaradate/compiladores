@@ -39,13 +39,13 @@ void remove_n(struct tabela_de_simbolos **ts, int n){
     (*ts)->qtd -= n;
 }
 
-bool busca(struct tabela_de_simbolos **ts, char *ident){
+struct simbolo *busca(struct tabela_de_simbolos **ts, const char *nome){
     int indice = (*ts)->qtd-1;
     while(indice >= 0){
-        struct simbolo atual =(*ts)->simbolos[indice--];
-        if(strcmp(ident, atual.identificador) == 0) return true;
+        struct simbolo *atual = &( (*ts)->simbolos[indice--] );
+        if (!strcmp( atual->identificador, nome )) return atual;
     }
-    return false;
+    return NULL;
 }
 
 void atribui_tipo(struct tabela_de_simbolos **ts, int categoria, int tipo, int qtd){

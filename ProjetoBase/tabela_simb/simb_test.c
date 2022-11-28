@@ -7,6 +7,7 @@
 int main(){
     struct simbolo var, param, proc;
     union cat_conteudo conteudo;
+
     // conteudo.var.tipo = 0;
     // conteudo.var.deslocamento = 99;
     // var = cria_simbolo("teste", 123, 532, variavel, conteudo);
@@ -49,6 +50,7 @@ int main(){
     // struct simbolo s = pop(&ts);
     // printf("%s\n", s.identificador);
     // printf("%d\n", ts->qtd);
+
 
 
     return 0;
