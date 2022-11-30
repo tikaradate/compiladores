@@ -16,7 +16,7 @@ lex.yy.c: compilador.l compilador.h
 	flex compilador.l
 
 compilador.tab.c: compilador.y compilador.h
-	bison compilador.y -d -v
+	bison compilador.y -d -v -Wcounterexamples
 
 tabela_simb.o: tabela_simb/tabela_simb.c tabela_simb/tabela_simb.h
 	gcc -c tabela_simb/tabela_simb.c -o tabela_simb.o

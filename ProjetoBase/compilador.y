@@ -132,11 +132,8 @@ lista_idents: lista_idents VIRGULA IDENT
 comando_composto: T_BEGIN comandos T_END
 ;
 
-comandos: comando | comandos PONTO_E_VIRGULA comando;
+comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
-comando: numero_ou_nao comando_sem_rotulo;
-
-numero_ou_nao: NUMERO DOIS_PONTOS | ;
 
 comando_sem_rotulo: atribuicao 
                   | expressao 
@@ -153,11 +150,7 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
-expressao   : expressao_int | expressao_bool
-
-expressao_int  : expressao_simples_int relacao_int expressao_simples_int 
-            | expressao_simples_int
-;
+expressao   : expressao_int {printf("aaaaa int\n");} | expressao_bool {printf("aaaaa bool\n");}
 
 relacao_int : IGUAL
             | DIFERENTE
@@ -167,7 +160,7 @@ relacao_int : IGUAL
             | MAIOR
 ;
 
-expressao_simples_int : expressao_simples_int mais_menos termo_int { geraCodigo(NULL, $2); }
+expressao_int : expressao_int mais_menos termo_int { geraCodigo(NULL, $2); }
                   | mais_menos_vazio termo_int { /* lidar com mais ou menos */ }
 ;
 
@@ -181,7 +174,7 @@ mais_menos     : MAIS { $$ = strdup("SOMA"); }
 ; 
 
 termo_int         : termo_int vezes_div fator_int { geraCodigo (NULL, $2); }
-                  | fator_int 
+                  | fator_int { printf("AAAAAAAAAAAAA cheguei no fator\n") ;}
 ;
 
 vezes_div      : VEZES { $$ = strdup("MULT"); }
@@ -193,7 +186,7 @@ fator_int         : variavel {
                      sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
                      geraCodigo(NULL, mepa_buf);
                   } 
-                  | ABRE_PARENTESES expressao FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
+                  | ABRE_PARENTESES expressao_int FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
                   {/*| NOT fator_int */}
                   | NUMERO {
                      sprintf (mepa_buf, "CRCT %d", atoi(token));
@@ -202,7 +195,7 @@ fator_int         : variavel {
 ;
 
 expressao_bool : expressao_simples_bool relacao_bool expressao_simples_bool
-               | expressao_simples_int relacao_int expressao_simples_int
+               | expressao_int relacao_int expressao_int
                | expressao_simples_bool;
 
 relacao_bool   : IGUAL
@@ -211,7 +204,7 @@ relacao_bool   : IGUAL
 
 expressao_simples_bool : expressao_simples_bool OR termo_bool 
                   { geraCodigo(NULL, "DISJ"); }
-                  | termo_bool { /* lidar com mais ou menos */ }
+                  | termo_bool 
 ;
 
 termo_bool         : termo_bool AND fator_int { geraCodigo (NULL, "CONJ"); }
@@ -225,7 +218,7 @@ fator_bool         : variavel {
                   } 
                   | ABRE_PARENTESES expressao_bool FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
                   NOT fator_bool
-                  | NUMERO {
+                  | VALOR_BOOL {
                      sprintf (mepa_buf, "CRCT %d", atoi(token));
                      geraCodigo(NULL, mepa_buf);
                   }
