@@ -10,12 +10,27 @@ Terminais sem uso na gramática
     IF
     THEN
     ELSE
+<<<<<<< HEAD
     WHILE
     DO
+=======
+    NOT
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
     ABRE_COLCHETES
     FECHA_COLCHETES
     ABRE_CHAVES
     FECHA_CHAVES
+<<<<<<< HEAD
+=======
+    PAS_TRUE
+    PAS_FALSE
+
+
+Estado 20 conflitos: 1 de deslocamento/redução
+Estado 28 conflitos: 1 de deslocamento/redução
+Estado 34 conflitos: 1 de deslocamento/redução
+Estado 84 conflitos: 1 de deslocamento/redução
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Gramática
@@ -56,6 +71,7 @@ Gramática
 
    19 comando_composto: T_BEGIN comandos T_END
 
+<<<<<<< HEAD
    20 comandos: comando_sem_rotulo
    21         | comandos PONTO_E_VIRGULA comando_sem_rotulo
 
@@ -99,6 +115,65 @@ Gramática
    50      | NOT fator
 
    51 variavel: IDENT
+=======
+   20 comandos: comando
+   21         | comandos PONTO_E_VIRGULA comando
+
+   22 comando: numero_ou_nao comando_sem_rotulo
+
+   23 numero_ou_nao: NUMERO DOIS_PONTOS
+   24              | %empty
+
+   25 comando_sem_rotulo: atribuicao
+   26                   | expressao
+   27                   | comando_repetitivo
+   28                   | %empty
+
+   29 atribuicao: variavel ATRIBUICAO expressao
+
+   30 expressao: expressao_simples relacao expressao_simples
+   31          | expressao_simples
+
+   32 relacao: IGUAL
+   33        | DIFERENTE
+   34        | MENOR
+   35        | MENOR_IGUAL
+   36        | MAIOR_IGUAL
+   37        | MAIOR
+
+   38 expressao_simples: expressao_simples mais_menos_or termo
+   39                  | mais_menos_vazio termo
+
+   40 mais_menos_vazio: MAIS
+   41                 | MENOS
+   42                 | %empty
+
+   43 mais_menos_or: MAIS
+   44              | MENOS
+   45              | OR
+
+   46 termo: termo vezes_div_and fator
+   47      | fator
+
+   48 vezes_div_and: VEZES
+   49              | DIV
+   50              | AND
+
+   51 fator: variavel
+
+   52 $@6: %empty
+
+   53 fator: ABRE_PARENTESES expressao FECHA_PARENTESES $@6
+   54      | NUMERO
+
+   55 variavel: IDENT
+
+   56 $@7: %empty
+
+   57 $@8: %empty
+
+   58 comando_repetitivo: WHILE $@7 expressao $@8 DO comando_sem_rotulo
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Terminais, com as regras onde eles aparecem
@@ -119,6 +194,7 @@ Terminais, com as regras onde eles aparecem
     IF (269)
     THEN (270)
     ELSE (271)
+<<<<<<< HEAD
     WHILE (272)
     DO (273)
     OR (274) 40
@@ -126,16 +202,31 @@ Terminais, com as regras onde eles aparecem
     NOT (276) 50
     DIV (277) 44
     ATRIBUICAO (278) 24
+=======
+    WHILE (272) 58
+    DO (273) 58
+    OR (274) 45
+    AND (275) 50
+    NOT (276)
+    DIV (277) 49
+    ATRIBUICAO (278) 29
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
     PONTO_E_VIRGULA (279) 2 13 21
     DOIS_PONTOS (280) 13
     VIRGULA (281) 15 17
     PONTO (282) 2
+<<<<<<< HEAD
     ABRE_PARENTESES (283) 2 49
     FECHA_PARENTESES (284) 2 49
+=======
+    ABRE_PARENTESES (283) 2 53
+    FECHA_PARENTESES (284) 2 53
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
     ABRE_COLCHETES (285)
     FECHA_COLCHETES (286)
     ABRE_CHAVES (287)
     FECHA_CHAVES (288)
+<<<<<<< HEAD
     IDENT (289) 2 15 16 17 18 51
     MAIOR (290) 32
     MENOR (291) 29
@@ -149,6 +240,22 @@ Terminais, com as regras onde eles aparecem
     MAIOR_IGUAL (299) 31
     VALOR_BOOL (300) 48
     TIPO (301) 14
+=======
+    IDENT (289) 2 15 16 17 18 55
+    MAIOR (290) 37
+    MENOR (291) 34
+    IGUAL (292) 32
+    MAIS (293) 40 43
+    MENOS (294) 41 44
+    VEZES (295) 48
+    NUMERO (296) 23 54
+    DIFERENTE (297) 33
+    MENOR_IGUAL (298) 35
+    MAIOR_IGUAL (299) 36
+    PAS_TRUE (300)
+    PAS_FALSE (301)
+    TIPO (302) 14
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Não terminais com as regras onde eles aparecem
@@ -206,6 +313,7 @@ Não terminais com as regras onde eles aparecem
     comando_sem_rotulo (64)
         à esquerda: 22 23
         à direita: 20 21
+<<<<<<< HEAD
     atribuicao (65)
         à esquerda: 24
         à direita: 22
@@ -236,6 +344,56 @@ Não terminais com as regras onde eles aparecem
     variavel <simb> (74)
         à esquerda: 51
         à direita: 24 46
+=======
+    numero_ou_nao (66)
+        à esquerda: 23 24
+        à direita: 22
+    comando_sem_rotulo (67)
+        à esquerda: 25 26 27 28
+        à direita: 22 58
+    atribuicao (68)
+        à esquerda: 29
+        à direita: 25
+    expressao <int_val> (69)
+        à esquerda: 30 31
+        à direita: 26 29 53 58
+    relacao <str> (70)
+        à esquerda: 32 33 34 35 36 37
+        à direita: 30
+    expressao_simples <int_val> (71)
+        à esquerda: 38 39
+        à direita: 30 31 38
+    mais_menos_vazio (72)
+        à esquerda: 40 41 42
+        à direita: 39
+    mais_menos_or <str> (73)
+        à esquerda: 43 44 45
+        à direita: 38
+    termo <int_val> (74)
+        à esquerda: 46 47
+        à direita: 38 39 46
+    vezes_div_and <str> (75)
+        à esquerda: 48 49 50
+        à direita: 46
+    fator <int_val> (76)
+        à esquerda: 51 53 54
+        à direita: 46 47
+    $@6 (77)
+        à esquerda: 52
+        à direita: 53
+    variavel <str> (78)
+        à esquerda: 55
+        à direita: 29 51
+    comando_repetitivo (79)
+        à esquerda: 58
+        à direita: 27
+    $@7 (80)
+        à esquerda: 56
+        à direita: 58
+    $@8 (81)
+        à esquerda: 57
+        à direita: 58
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 0
@@ -475,7 +633,27 @@ Estado 28
 
    22 comando_sem_rotulo: atribuicao •
 
+<<<<<<< HEAD
     $padrão  reduzir usando a regra 22 (comando_sem_rotulo)
+=======
+    WHILE  deslocar, e ir ao estado 35
+    IDENT  deslocar, e ir ao estado 36
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
+
+    ABRE_PARENTESES  reduzir usando a regra 42 (mais_menos_vazio)
+    IDENT            [reduzir usando a regra 42 (mais_menos_vazio)]
+    NUMERO           reduzir usando a regra 42 (mais_menos_vazio)
+    $padrão          reduzir usando a regra 28 (comando_sem_rotulo)
+
+    comando_sem_rotulo  ir ao estado 39
+    atribuicao          ir ao estado 40
+    expressao           ir ao estado 41
+    expressao_simples   ir ao estado 42
+    mais_menos_vazio    ir ao estado 43
+    variavel            ir ao estado 44
+    comando_repetitivo  ir ao estado 45
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 29
@@ -496,7 +674,12 @@ Estado 31
 
    16 lista_id_var: IDENT •
 
+<<<<<<< HEAD
     $padrão  reduzir usando a regra 16 (lista_id_var)
+=======
+    DOIS_PONTOS  deslocar, e ir ao estado 46
+    VIRGULA      deslocar, e ir ao estado 47
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 32
@@ -523,13 +706,19 @@ Estado 34
 
     $padrão  reduzir usando a regra 23 (comando_sem_rotulo)
 
+<<<<<<< HEAD
     comando_sem_rotulo  ir ao estado 38
     atribuicao          ir ao estado 28
     variavel            ir ao estado 29
+=======
+    comando        ir ao estado 48
+    numero_ou_nao  ir ao estado 28
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 35
 
+<<<<<<< HEAD
    24 atribuicao: variavel ATRIBUICAO • expressao
 
     MAIS   deslocar, e ir ao estado 39
@@ -540,47 +729,83 @@ Estado 35
     expressao          ir ao estado 41
     expressao_simples  ir ao estado 42
     mais_menos_vazio   ir ao estado 43
+=======
+   58 comando_repetitivo: WHILE • $@7 expressao $@8 DO comando_sem_rotulo
+
+    $padrão  reduzir usando a regra 56 ($@7)
+
+    $@7  ir ao estado 49
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 36
 
+<<<<<<< HEAD
    13 declara_var: $@4 lista_id_var DOIS_PONTOS • tipo $@5 PONTO_E_VIRGULA
 
     TIPO  deslocar, e ir ao estado 44
 
     tipo  ir ao estado 45
+=======
+   55 variavel: IDENT •
+
+    $padrão  reduzir usando a regra 55 (variavel)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 37
 
+<<<<<<< HEAD
    15 lista_id_var: lista_id_var VIRGULA • IDENT
+=======
+   40 mais_menos_vazio: MAIS •
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
     IDENT  deslocar, e ir ao estado 46
 
 
 Estado 38
 
+<<<<<<< HEAD
    21 comandos: comandos PONTO_E_VIRGULA comando_sem_rotulo •
 
     $padrão  reduzir usando a regra 21 (comandos)
+=======
+   41 mais_menos_vazio: MENOS •
+
+    $padrão  reduzir usando a regra 41 (mais_menos_vazio)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 39
 
+<<<<<<< HEAD
    35 mais_menos_vazio: MAIS •
 
     $padrão  reduzir usando a regra 35 (mais_menos_vazio)
+=======
+   22 comando: numero_ou_nao comando_sem_rotulo •
+
+    $padrão  reduzir usando a regra 22 (comando)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 40
 
+<<<<<<< HEAD
    36 mais_menos_vazio: MENOS •
 
     $padrão  reduzir usando a regra 36 (mais_menos_vazio)
+=======
+   25 comando_sem_rotulo: atribuicao •
+
+    $padrão  reduzir usando a regra 25 (comando_sem_rotulo)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 41
 
+<<<<<<< HEAD
    24 atribuicao: variavel ATRIBUICAO expressao •
 
     $padrão  reduzir usando a regra 24 (atribuicao)
@@ -603,11 +828,14 @@ Estado 42
     MAIOR_IGUAL  deslocar, e ir ao estado 55
 
     $padrão  reduzir usando a regra 25 (expressao)
+=======
+   26 comando_sem_rotulo: expressao •
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
-    relacao        ir ao estado 56
-    mais_menos_or  ir ao estado 57
+    $padrão  reduzir usando a regra 26 (comando_sem_rotulo)
 
 
+<<<<<<< HEAD
 Estado 43
 
    34 expressao_simples: mais_menos_vazio • termo
@@ -621,96 +849,211 @@ Estado 43
     termo     ir ao estado 62
     fator     ir ao estado 63
     variavel  ir ao estado 64
+=======
+Estado 42
+
+   30 expressao: expressao_simples • relacao expressao_simples
+   31          | expressao_simples •
+   38 expressao_simples: expressao_simples • mais_menos_or termo
+
+    OR           deslocar, e ir ao estado 50
+    MAIOR        deslocar, e ir ao estado 51
+    MENOR        deslocar, e ir ao estado 52
+    IGUAL        deslocar, e ir ao estado 53
+    MAIS         deslocar, e ir ao estado 54
+    MENOS        deslocar, e ir ao estado 55
+    DIFERENTE    deslocar, e ir ao estado 56
+    MENOR_IGUAL  deslocar, e ir ao estado 57
+    MAIOR_IGUAL  deslocar, e ir ao estado 58
+
+    $padrão  reduzir usando a regra 31 (expressao)
+
+    relacao        ir ao estado 59
+    mais_menos_or  ir ao estado 60
+
+
+Estado 43
+
+   39 expressao_simples: mais_menos_vazio • termo
+
+    ABRE_PARENTESES  deslocar, e ir ao estado 61
+    IDENT            deslocar, e ir ao estado 36
+    NUMERO           deslocar, e ir ao estado 62
+
+    termo     ir ao estado 63
+    fator     ir ao estado 64
+    variavel  ir ao estado 65
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 44
 
+<<<<<<< HEAD
    14 tipo: TIPO •
 
     $padrão  reduzir usando a regra 14 (tipo)
+=======
+   29 atribuicao: variavel • ATRIBUICAO expressao
+
+    ATRIBUICAO  deslocar, e ir ao estado 66
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 45
 
+<<<<<<< HEAD
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo • $@5 PONTO_E_VIRGULA
 
     $padrão  reduzir usando a regra 12 ($@5)
 
     $@5  ir ao estado 65
+=======
+   27 comando_sem_rotulo: comando_repetitivo •
+
+    $padrão  reduzir usando a regra 27 (comando_sem_rotulo)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 46
 
+<<<<<<< HEAD
    15 lista_id_var: lista_id_var VIRGULA IDENT •
 
     $padrão  reduzir usando a regra 15 (lista_id_var)
+=======
+   13 declara_var: $@4 lista_id_var DOIS_PONTOS • tipo $@5 PONTO_E_VIRGULA
+
+    TIPO  deslocar, e ir ao estado 67
+
+    tipo  ir ao estado 68
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 47
 
+<<<<<<< HEAD
    40 mais_menos_or: OR •
 
     $padrão  reduzir usando a regra 40 (mais_menos_or)
+=======
+   15 lista_id_var: lista_id_var VIRGULA • IDENT
+
+    IDENT  deslocar, e ir ao estado 69
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 48
 
+<<<<<<< HEAD
    32 relacao: MAIOR •
 
     $padrão  reduzir usando a regra 32 (relacao)
+=======
+   21 comandos: comandos PONTO_E_VIRGULA comando •
+
+    $padrão  reduzir usando a regra 21 (comandos)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 49
 
+<<<<<<< HEAD
    29 relacao: MENOR •
 
     $padrão  reduzir usando a regra 29 (relacao)
+=======
+   58 comando_repetitivo: WHILE $@7 • expressao $@8 DO comando_sem_rotulo
+
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
+
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
+
+    expressao          ir ao estado 70
+    expressao_simples  ir ao estado 42
+    mais_menos_vazio   ir ao estado 43
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 50
 
+<<<<<<< HEAD
    27 relacao: IGUAL •
 
     $padrão  reduzir usando a regra 27 (relacao)
+=======
+   45 mais_menos_or: OR •
+
+    $padrão  reduzir usando a regra 45 (mais_menos_or)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 51
 
+<<<<<<< HEAD
    38 mais_menos_or: MAIS •
 
     $padrão  reduzir usando a regra 38 (mais_menos_or)
+=======
+   37 relacao: MAIOR •
+
+    $padrão  reduzir usando a regra 37 (relacao)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 52
 
+<<<<<<< HEAD
    39 mais_menos_or: MENOS •
 
     $padrão  reduzir usando a regra 39 (mais_menos_or)
+=======
+   34 relacao: MENOR •
+
+    $padrão  reduzir usando a regra 34 (relacao)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 53
 
+<<<<<<< HEAD
    28 relacao: DIFERENTE •
+=======
+   32 relacao: IGUAL •
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
     $padrão  reduzir usando a regra 28 (relacao)
 
 
 Estado 54
 
+<<<<<<< HEAD
    30 relacao: MENOR_IGUAL •
 
     $padrão  reduzir usando a regra 30 (relacao)
+=======
+   43 mais_menos_or: MAIS •
+
+    $padrão  reduzir usando a regra 43 (mais_menos_or)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 55
 
+<<<<<<< HEAD
    31 relacao: MAIOR_IGUAL •
 
     $padrão  reduzir usando a regra 31 (relacao)
+=======
+   44 mais_menos_or: MENOS •
+
+    $padrão  reduzir usando a regra 44 (mais_menos_or)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 56
 
+<<<<<<< HEAD
    26 expressao: expressao_simples relacao • expressao_simples
 
     MAIS   deslocar, e ir ao estado 39
@@ -720,10 +1063,16 @@ Estado 56
 
     expressao_simples  ir ao estado 66
     mais_menos_vazio   ir ao estado 43
+=======
+   33 relacao: DIFERENTE •
+
+    $padrão  reduzir usando a regra 33 (relacao)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 57
 
+<<<<<<< HEAD
    33 expressao_simples: expressao_simples mais_menos_or • termo
 
     NOT              deslocar, e ir ao estado 58
@@ -735,10 +1084,16 @@ Estado 57
     termo     ir ao estado 67
     fator     ir ao estado 63
     variavel  ir ao estado 64
+=======
+   35 relacao: MENOR_IGUAL •
+
+    $padrão  reduzir usando a regra 35 (relacao)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 58
 
+<<<<<<< HEAD
    50 fator: NOT • fator
 
     NOT              deslocar, e ir ao estado 58
@@ -749,14 +1104,31 @@ Estado 58
 
     fator     ir ao estado 68
     variavel  ir ao estado 64
+=======
+   36 relacao: MAIOR_IGUAL •
+
+    $padrão  reduzir usando a regra 36 (relacao)
 
 
 Estado 59
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
+   30 expressao: expressao_simples relacao • expressao_simples
+
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
+
+<<<<<<< HEAD
    49 fator: ABRE_PARENTESES • expressao FECHA_PARENTESES
 
     MAIS   deslocar, e ir ao estado 39
     MENOS  deslocar, e ir ao estado 40
+=======
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
+
+    expressao_simples  ir ao estado 71
+    mais_menos_vazio   ir ao estado 43
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
     $padrão  reduzir usando a regra 37 (mais_menos_vazio)
 
@@ -764,72 +1136,145 @@ Estado 59
     expressao_simples  ir ao estado 42
     mais_menos_vazio   ir ao estado 43
 
+<<<<<<< HEAD
 
 Estado 60
 
    47 fator: NUMERO •
 
     $padrão  reduzir usando a regra 47 (fator)
+=======
+   38 expressao_simples: expressao_simples mais_menos_or • termo
+
+    ABRE_PARENTESES  deslocar, e ir ao estado 61
+    IDENT            deslocar, e ir ao estado 36
+    NUMERO           deslocar, e ir ao estado 62
+
+    termo     ir ao estado 72
+    fator     ir ao estado 64
+    variavel  ir ao estado 65
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 61
 
+<<<<<<< HEAD
    48 fator: VALOR_BOOL •
 
     $padrão  reduzir usando a regra 48 (fator)
+=======
+   53 fator: ABRE_PARENTESES • expressao FECHA_PARENTESES $@6
+
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
+
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
+
+    expressao          ir ao estado 73
+    expressao_simples  ir ao estado 42
+    mais_menos_vazio   ir ao estado 43
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 62
 
+<<<<<<< HEAD
    34 expressao_simples: mais_menos_vazio termo •
    41 termo: termo • vezes_div_and fator
 
     AND    deslocar, e ir ao estado 70
     DIV    deslocar, e ir ao estado 71
     VEZES  deslocar, e ir ao estado 72
+=======
+   54 fator: NUMERO •
+
+    $padrão  reduzir usando a regra 54 (fator)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
     $padrão  reduzir usando a regra 34 (expressao_simples)
 
     vezes_div_and  ir ao estado 73
 
+<<<<<<< HEAD
 
 Estado 63
 
    42 termo: fator •
 
     $padrão  reduzir usando a regra 42 (termo)
+=======
+   39 expressao_simples: mais_menos_vazio termo •
+   46 termo: termo • vezes_div_and fator
+
+    AND    deslocar, e ir ao estado 74
+    DIV    deslocar, e ir ao estado 75
+    VEZES  deslocar, e ir ao estado 76
+
+    $padrão  reduzir usando a regra 39 (expressao_simples)
+
+    vezes_div_and  ir ao estado 77
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 64
 
+<<<<<<< HEAD
    46 fator: variavel •
 
     $padrão  reduzir usando a regra 46 (fator)
+=======
+   47 termo: fator •
+
+    $padrão  reduzir usando a regra 47 (termo)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 65
 
+<<<<<<< HEAD
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 • PONTO_E_VIRGULA
 
     PONTO_E_VIRGULA  deslocar, e ir ao estado 74
+=======
+   51 fator: variavel •
+
+    $padrão  reduzir usando a regra 51 (fator)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 66
 
+<<<<<<< HEAD
    26 expressao: expressao_simples relacao expressao_simples •
    33 expressao_simples: expressao_simples • mais_menos_or termo
+=======
+   29 atribuicao: variavel ATRIBUICAO • expressao
 
-    OR     deslocar, e ir ao estado 47
-    MAIS   deslocar, e ir ao estado 51
-    MENOS  deslocar, e ir ao estado 52
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
 
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
+
+    expressao          ir ao estado 78
+    expressao_simples  ir ao estado 42
+    mais_menos_vazio   ir ao estado 43
+
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
+
+Estado 67
+
+<<<<<<< HEAD
     $padrão  reduzir usando a regra 26 (expressao)
+=======
+   14 tipo: TIPO •
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
-    mais_menos_or  ir ao estado 57
+    $padrão  reduzir usando a regra 14 (tipo)
 
 
 Estado 67
 
+<<<<<<< HEAD
    33 expressao_simples: expressao_simples mais_menos_or termo •
    41 termo: termo • vezes_div_and fator
 
@@ -838,8 +1283,13 @@ Estado 67
     VEZES  deslocar, e ir ao estado 72
 
     $padrão  reduzir usando a regra 33 (expressao_simples)
+=======
+   13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo • $@5 PONTO_E_VIRGULA
 
-    vezes_div_and  ir ao estado 73
+    $padrão  reduzir usando a regra 12 ($@5)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
+
+    $@5  ir ao estado 79
 
 
 Estado 68
@@ -851,34 +1301,73 @@ Estado 68
 
 Estado 69
 
+<<<<<<< HEAD
    49 fator: ABRE_PARENTESES expressao • FECHA_PARENTESES
 
     FECHA_PARENTESES  deslocar, e ir ao estado 75
+=======
+   15 lista_id_var: lista_id_var VIRGULA IDENT •
+
+    $padrão  reduzir usando a regra 15 (lista_id_var)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 70
 
+<<<<<<< HEAD
    45 vezes_div_and: AND •
 
     $padrão  reduzir usando a regra 45 (vezes_div_and)
+=======
+   58 comando_repetitivo: WHILE $@7 expressao • $@8 DO comando_sem_rotulo
+
+    $padrão  reduzir usando a regra 57 ($@8)
+
+    $@8  ir ao estado 80
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 71
 
+<<<<<<< HEAD
    44 vezes_div_and: DIV •
 
     $padrão  reduzir usando a regra 44 (vezes_div_and)
+=======
+   30 expressao: expressao_simples relacao expressao_simples •
+   38 expressao_simples: expressao_simples • mais_menos_or termo
+
+    OR     deslocar, e ir ao estado 50
+    MAIS   deslocar, e ir ao estado 54
+    MENOS  deslocar, e ir ao estado 55
+
+    $padrão  reduzir usando a regra 30 (expressao)
+
+    mais_menos_or  ir ao estado 60
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 72
 
+<<<<<<< HEAD
    43 vezes_div_and: VEZES •
 
     $padrão  reduzir usando a regra 43 (vezes_div_and)
+=======
+   38 expressao_simples: expressao_simples mais_menos_or termo •
+   46 termo: termo • vezes_div_and fator
+
+    AND    deslocar, e ir ao estado 74
+    DIV    deslocar, e ir ao estado 75
+    VEZES  deslocar, e ir ao estado 76
+
+    $padrão  reduzir usando a regra 38 (expressao_simples)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
+
+    vezes_div_and  ir ao estado 77
 
 
-Estado 73
-
+<<<<<<< HEAD
    41 termo: termo vezes_div_and • fator
 
     NOT              deslocar, e ir ao estado 58
@@ -889,24 +1378,142 @@ Estado 73
 
     fator     ir ao estado 76
     variavel  ir ao estado 64
+=======
+Estado 73
+
+   53 fator: ABRE_PARENTESES expressao • FECHA_PARENTESES $@6
+
+    FECHA_PARENTESES  deslocar, e ir ao estado 81
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 
 Estado 74
+
+<<<<<<< HEAD
+   13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA •
+
+    $padrão  reduzir usando a regra 13 (declara_var)
+=======
+   50 vezes_div_and: AND •
+
+    $padrão  reduzir usando a regra 50 (vezes_div_and)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
+
+
+Estado 75
+
+<<<<<<< HEAD
+   49 fator: ABRE_PARENTESES expressao FECHA_PARENTESES •
+
+    $padrão  reduzir usando a regra 49 (fator)
+=======
+   49 vezes_div_and: DIV •
+
+    $padrão  reduzir usando a regra 49 (vezes_div_and)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
+
+
+Estado 76
+
+<<<<<<< HEAD
+   41 termo: termo vezes_div_and fator •
+
+    $padrão  reduzir usando a regra 41 (termo)
+=======
+   48 vezes_div_and: VEZES •
+
+    $padrão  reduzir usando a regra 48 (vezes_div_and)
+
+
+Estado 77
+
+   46 termo: termo vezes_div_and • fator
+
+    ABRE_PARENTESES  deslocar, e ir ao estado 61
+    IDENT            deslocar, e ir ao estado 36
+    NUMERO           deslocar, e ir ao estado 62
+
+    fator     ir ao estado 82
+    variavel  ir ao estado 65
+
+
+Estado 78
+
+   29 atribuicao: variavel ATRIBUICAO expressao •
+
+    $padrão  reduzir usando a regra 29 (atribuicao)
+
+
+Estado 79
+
+   13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 • PONTO_E_VIRGULA
+
+    PONTO_E_VIRGULA  deslocar, e ir ao estado 83
+
+
+Estado 80
+
+   58 comando_repetitivo: WHILE $@7 expressao $@8 • DO comando_sem_rotulo
+
+    DO  deslocar, e ir ao estado 84
+
+
+Estado 81
+
+   53 fator: ABRE_PARENTESES expressao FECHA_PARENTESES • $@6
+
+    $padrão  reduzir usando a regra 52 ($@6)
+
+    $@6  ir ao estado 85
+
+
+Estado 82
+
+   46 termo: termo vezes_div_and fator •
+
+    $padrão  reduzir usando a regra 46 (termo)
+
+
+Estado 83
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA •
 
     $padrão  reduzir usando a regra 13 (declara_var)
 
 
-Estado 75
+Estado 84
 
-   49 fator: ABRE_PARENTESES expressao FECHA_PARENTESES •
+   58 comando_repetitivo: WHILE $@7 expressao $@8 DO • comando_sem_rotulo
 
-    $padrão  reduzir usando a regra 49 (fator)
+    WHILE  deslocar, e ir ao estado 35
+    IDENT  deslocar, e ir ao estado 36
+    MAIS   deslocar, e ir ao estado 37
+    MENOS  deslocar, e ir ao estado 38
+
+    ABRE_PARENTESES  reduzir usando a regra 42 (mais_menos_vazio)
+    IDENT            [reduzir usando a regra 42 (mais_menos_vazio)]
+    NUMERO           reduzir usando a regra 42 (mais_menos_vazio)
+    $padrão          reduzir usando a regra 28 (comando_sem_rotulo)
+
+    comando_sem_rotulo  ir ao estado 86
+    atribuicao          ir ao estado 40
+    expressao           ir ao estado 41
+    expressao_simples   ir ao estado 42
+    mais_menos_vazio    ir ao estado 43
+    variavel            ir ao estado 44
+    comando_repetitivo  ir ao estado 45
 
 
-Estado 76
+Estado 85
 
-   41 termo: termo vezes_div_and fator •
+   53 fator: ABRE_PARENTESES expressao FECHA_PARENTESES $@6 •
 
-    $padrão  reduzir usando a regra 41 (termo)
+    $padrão  reduzir usando a regra 53 (fator)
+
+
+Estado 86
+
+   58 comando_repetitivo: WHILE $@7 expressao $@8 DO comando_sem_rotulo •
+
+    $padrão  reduzir usando a regra 58 (comando_repetitivo)
+>>>>>>> 6a36cf1 (funciona while sem comando composto)

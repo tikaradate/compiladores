@@ -24,11 +24,17 @@ struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
 union cat_conteudo ti;
 
+<<<<<<< HEAD
 int str2type(const char *str){
    if (!strcmp(str, "integer")) return pas_integer;
    if (!strcmp(str, "boolean")) return pas_boolean;
    return undefined_type;
 }
+=======
+short int rot_num;
+char rot_str[4];
+int rot_w;
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 %}
 
@@ -66,6 +72,7 @@ int str2type(const char *str){
 programa    :{
              geraCodigo (NULL, "INPP");
              nivel_lex = 0;
+             rot_num = 0;
              }
              PROGRAM IDENT
              ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA
@@ -141,6 +148,7 @@ comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
 
 comando_sem_rotulo: atribuicao 
+                  | comando_repetitivo
                   |
 ;
 
@@ -158,6 +166,7 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
+<<<<<<< HEAD
 // ========== REGRA 25 ========== //
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
@@ -176,6 +185,20 @@ relacao  : IGUAL        { $$ = "CMIG"; }
          | MENOR_IGUAL  { $$ = "CMEG"; }
          | MAIOR_IGUAL  { $$ = "CMAG"; }
          | MAIOR        { $$ = "CMMA"; }
+=======
+expressao   : expressao_simples relacao expressao_simples {
+               geraCodigo(NULL, $2);
+            }
+            | expressao_simples  
+; 
+
+relacao     : IGUAL        { $$ = "CMIG"; }
+            | DIFERENTE    { $$ = "CMDG"; }
+            | MENOR        { $$ = "CMME"; }
+            | MENOR_IGUAL  { $$ = "CMEG"; }
+            | MAIOR_IGUAL  { $$ = "CMAG"; }
+            | MAIOR        { $$ = "CMMA"; }
+>>>>>>> 6a36cf1 (funciona while sem comando composto)
 ;
 
 // ========== REGRA 27 ========== //
@@ -280,6 +303,26 @@ fator : variavel {
 
 // ========== REGRA 30 ========== //
 variavel          :  IDENT { $$ = busca(&ts, token); } ;
+
+comando_repetitivo:  WHILE {
+                        sprintf(rot_str, "R%02d", rot_num++); 
+                        geraCodigo(rot_str, "NADA");
+                        rot_w = rot_num++;
+                     }
+                     expressao {
+                        sprintf(mepa_buf, "DSVF R%02d", rot_w);
+                        geraCodigo(NULL, mepa_buf);
+                     }
+                     DO 
+                     comando_sem_rotulo{
+                        sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
+                        geraCodigo(NULL, mepa_buf);
+
+                        sprintf(rot_str, "R%02d", rot_w);
+                        geraCodigo(rot_str, "NADA");
+                     }
+;
+
 
 %%
 
