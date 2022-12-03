@@ -12,43 +12,43 @@ Terminais sem uso na gramática
     ELSE
     WHILE
     DO
+    NOT
     ABRE_COLCHETES
     FECHA_COLCHETES
     ABRE_CHAVES
     FECHA_CHAVES
+    VALOR_BOOL
 
 
-Estado 20 conflitos: 2 de deslocamento/redução
-Estado 25 conflitos: 2 de deslocamento/redução
-Estado 48 conflitos: 2 de deslocamento/redução
-Estado 69 conflitos: 2 de deslocamento/redução
+Estado 20 conflitos: 1 de deslocamento/redução
+Estado 39 conflitos: 1 de deslocamento/redução
 
 
 Gramática
 
     0 $accept: programa $end
 
-    1 $@1: %empty
+    1 $@1: ε
 
     2 programa: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco PONTO
 
-    3 $@2: %empty
+    3 $@2: ε
 
     4 bloco: parte_declara_vars $@2 comando_composto
 
     5 parte_declara_vars: var
 
-    6 $@3: %empty
+    6 $@3: ε
 
     7 var: $@3 VAR declara_vars
-    8    | %empty
+    8    | ε
 
     9 declara_vars: declara_vars declara_var
    10             | declara_var
 
-   11 $@4: %empty
+   11 $@4: ε
 
-   12 $@5: %empty
+   12 $@5: ε
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA
 
@@ -67,64 +67,43 @@ Gramática
 
    22 comando_sem_rotulo: atribuicao
    23                   | expressao
-   24                   | %empty
+   24                   | ε
 
    25 atribuicao: variavel ATRIBUICAO expressao
 
-   26 expressao: expressao_int
-   27          | expressao_bool
+   26 expressao: expressao_simples
+   27          | expressao_simples relacao expressao_simples
 
-   28 relacao_int: IGUAL
-   29            | DIFERENTE
-   30            | MENOR
-   31            | MENOR_IGUAL
-   32            | MAIOR_IGUAL
-   33            | MAIOR
+   28 expressao_simples: expressao_simples mais_menos_or termo
+   29                  | mais_menos_vazio termo
 
-   34 expressao_int: expressao_int mais_menos termo_int
-   35              | mais_menos_vazio termo_int
+   30 termo: termo vezes_div_and fator
+   31      | fator
 
-   36 mais_menos_vazio: MAIS
-   37                 | MENOS
-   38                 | %empty
+   32 fator: variavel
+   33      | NUMERO
+   34      | ABRE_PARENTESES expressao FECHA_PARENTESES
 
-   39 mais_menos: MAIS
-   40           | MENOS
+   35 relacao: IGUAL
+   36        | DIFERENTE
+   37        | MENOR
+   38        | MENOR_IGUAL
+   39        | MAIOR_IGUAL
+   40        | MAIOR
 
-   41 termo_int: termo_int vezes_div fator_int
-   42          | fator_int
+   41 mais_menos_vazio: MAIS
+   42                 | MENOS
+   43                 | ε
 
-   43 vezes_div: VEZES
-   44          | DIV
+   44 mais_menos_or: MAIS
+   45              | MENOS
+   46              | OR
 
-   45 fator_int: variavel
+   47 vezes_div_and: VEZES
+   48              | DIV
+   49              | AND
 
-   46 $@6: %empty
-
-   47 fator_int: ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6
-   48          | NUMERO
-
-   49 expressao_bool: expressao_simples_bool relacao_bool expressao_simples_bool
-   50               | expressao_int relacao_int expressao_int
-   51               | expressao_simples_bool
-
-   52 relacao_bool: IGUAL
-   53             | DIFERENTE
-
-   54 expressao_simples_bool: expressao_simples_bool OR termo_bool
-   55                       | termo_bool
-
-   56 termo_bool: termo_bool AND fator_int
-   57           | fator_bool
-
-   58 fator_bool: variavel
-
-   59 $@7: %empty
-
-   60 fator_bool: ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-   61           | VALOR_BOOL
-
-   62 variavel: IDENT
+   50 variavel: IDENT
 
 
 Terminais, com as regras onde eles aparecem
@@ -147,33 +126,33 @@ Terminais, com as regras onde eles aparecem
     ELSE (271)
     WHILE (272)
     DO (273)
-    OR (274) 54
-    AND (275) 56
-    NOT (276) 60
-    DIV (277) 44
+    OR (274) 46
+    AND (275) 49
+    NOT (276)
+    DIV (277) 48
     ATRIBUICAO (278) 25
     PONTO_E_VIRGULA (279) 2 13 21
     DOIS_PONTOS (280) 13
     VIRGULA (281) 15 17
     PONTO (282) 2
-    ABRE_PARENTESES (283) 2 47 60
-    FECHA_PARENTESES (284) 2 47 60
+    ABRE_PARENTESES (283) 2 34
+    FECHA_PARENTESES (284) 2 34
     ABRE_COLCHETES (285)
     FECHA_COLCHETES (286)
     ABRE_CHAVES (287)
     FECHA_CHAVES (288)
-    IDENT (289) 2 15 16 17 18 62
-    MAIOR (290) 33
-    MENOR (291) 30
-    IGUAL (292) 28 52
-    MAIS (293) 36 39
-    MENOS (294) 37 40
-    VEZES (295) 43
-    NUMERO (296) 48
-    DIFERENTE (297) 29 53
-    MENOR_IGUAL (298) 31
-    MAIOR_IGUAL (299) 32
-    VALOR_BOOL (300) 61
+    IDENT (289) 2 15 16 17 18 50
+    MAIOR (290) 40
+    MENOR (291) 37
+    IGUAL (292) 35
+    MAIS (293) 41 44
+    MENOS (294) 42 45
+    VEZES (295) 47
+    NUMERO (296) 33
+    DIFERENTE (297) 36
+    MENOR_IGUAL (298) 38
+    MAIOR_IGUAL (299) 39
+    VALOR_BOOL (300)
     TIPO (301) 14
 
 
@@ -237,52 +216,31 @@ Não terminais com as regras onde eles aparecem
         à direita: 22
     expressao (66)
         à esquerda: 26 27
-        à direita: 23 25
-    relacao_int (67)
-        à esquerda: 28 29 30 31 32 33
-        à direita: 50
-    expressao_int (68)
-        à esquerda: 34 35
-        à direita: 26 34 47 50
-    mais_menos_vazio (69)
-        à esquerda: 36 37 38
-        à direita: 35
-    mais_menos <str> (70)
-        à esquerda: 39 40
-        à direita: 34
-    termo_int <int_val> (71)
-        à esquerda: 41 42
-        à direita: 34 35 41
-    vezes_div <str> (72)
-        à esquerda: 43 44
-        à direita: 41
-    fator_int <int_val> (73)
-        à esquerda: 45 47 48
-        à direita: 41 42 56
-    $@6 (74)
-        à esquerda: 46
-        à direita: 47
-    expressao_bool (75)
-        à esquerda: 49 50 51
-        à direita: 27 60
-    relacao_bool (76)
-        à esquerda: 52 53
-        à direita: 49
-    expressao_simples_bool (77)
-        à esquerda: 54 55
-        à direita: 49 51 54
-    termo_bool (78)
-        à esquerda: 56 57
-        à direita: 54 55 56
-    fator_bool (79)
-        à esquerda: 58 60 61
-        à direita: 57 60
-    $@7 (80)
-        à esquerda: 59
-        à direita: 60
-    variavel <str> (81)
-        à esquerda: 62
-        à direita: 25 45 58
+        à direita: 23 25 34
+    expressao_simples (67)
+        à esquerda: 28 29
+        à direita: 26 27 28
+    termo <int_val> (68)
+        à esquerda: 30 31
+        à direita: 28 29 30
+    fator <int_val> (69)
+        à esquerda: 32 33 34
+        à direita: 30 31
+    relacao (70)
+        à esquerda: 35 36 37 38 39 40
+        à direita: 27
+    mais_menos_vazio (71)
+        à esquerda: 41 42 43
+        à direita: 29
+    mais_menos_or <str> (72)
+        à esquerda: 44 45 46
+        à direita: 28
+    vezes_div_and <str> (73)
+        à esquerda: 47 48 49
+        à direita: 30
+    variavel <str> (74)
+        à esquerda: 50
+        à direita: 25 32
 
 
 Estado 0
@@ -450,80 +408,22 @@ Estado 20
 
    19 comando_composto: T_BEGIN • comandos T_END
 
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    MAIS             deslocar, e ir ao estado 27
-    MENOS            deslocar, e ir ao estado 28
-    VALOR_BOOL       deslocar, e ir ao estado 29
+    IDENT  deslocar, e ir ao estado 25
+    MAIS   deslocar, e ir ao estado 26
+    MENOS  deslocar, e ir ao estado 27
 
-    ABRE_PARENTESES  [reduzir usando a regra 38 (mais_menos_vazio)]
-    IDENT            [reduzir usando a regra 38 (mais_menos_vazio)]
-    NUMERO           reduzir usando a regra 38 (mais_menos_vazio)
+    ABRE_PARENTESES  reduzir usando a regra 43 (mais_menos_vazio)
+    IDENT            [reduzir usando a regra 43 (mais_menos_vazio)]
+    NUMERO           reduzir usando a regra 43 (mais_menos_vazio)
     $padrão          reduzir usando a regra 24 (comando_sem_rotulo)
 
-    comandos                ir ao estado 30
-    comando_sem_rotulo      ir ao estado 31
-    atribuicao              ir ao estado 32
-    expressao               ir ao estado 33
-    expressao_int           ir ao estado 34
-    mais_menos_vazio        ir ao estado 35
-    expressao_bool          ir ao estado 36
-    expressao_simples_bool  ir ao estado 37
-    termo_bool              ir ao estado 38
-    fator_bool              ir ao estado 39
-    variavel                ir ao estado 40
-
-    conflito de deslocamento/redução no token ABRE_PARENTESES:
-       38 mais_menos_vazio: • %empty
-       60 fator_bool: • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Primeiro exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars T_BEGIN • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END comando_composto PONTO $end
-      Derivação do deslocamento
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                             $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                        PONTO
-                                                                                            ↳ parte_declara_vars comando_composto                                                                                                                       comando_composto
-                                                                                                                 ↳ T_BEGIN comandos                                                                                                               T_END
-                                                                                                                           ↳ comando_sem_rotulo
-                                                                                                                             ↳ expressao
-                                                                                                                               ↳ expressao_bool
-                                                                                                                                 ↳ expressao_simples_bool                                                     relacao_bool expressao_simples_bool
-                                                                                                                                   ↳ termo_bool
-                                                                                                                                     ↳ fator_bool
-                                                                                                                                       ↳ • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Segundo exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN • ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6 T_END PONTO $end
-      Derivação de redução
-        $accept
-        ↳ programa                                                                                                                                                                                                         $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                    PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                        T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ expressao
-                                                                                                                                   ↳ expressao_int
-                                                                                                                                     ↳ mais_menos_vazio termo_int
-                                                                                                                                       ↳ •              ↳ fator_int
-                                                                                                                                                          ↳ ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6
-
-    conflito de deslocamento/redução no token IDENT:
-       38 mais_menos_vazio: • %empty
-       62 variavel: • IDENT
-      Exemplo: • IDENT
-      Derivação do deslocamento
-        expressao
-        ↳ expressao_bool
-          ↳ expressao_simples_bool
-            ↳ termo_bool
-              ↳ fator_bool
-                ↳ variavel
-                  ↳ • IDENT
-      Derivação de redução
-        expressao
-        ↳ expressao_int
-          ↳ mais_menos_vazio termo_int
-            ↳ •              ↳ fator_int
-                               ↳ variavel
-                                 ↳ IDENT
-
+    comandos            ir ao estado 28
+    comando_sem_rotulo  ir ao estado 29
+    atribuicao          ir ao estado 30
+    expressao           ir ao estado 31
+    expressao_simples   ir ao estado 32
+    mais_menos_vazio    ir ao estado 33
+    variavel            ir ao estado 34
 
 
 Estado 21
@@ -541,7 +441,7 @@ Estado 22
     IDENT    reduzir usando a regra 11 ($@4)
     $padrão  reduzir usando a regra 7 (var)
 
-    declara_var  ir ao estado 41
+    declara_var  ir ao estado 35
     $@4          ir ao estado 24
 
 
@@ -556,861 +456,451 @@ Estado 24
 
    13 declara_var: $@4 • lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA
 
-    IDENT  deslocar, e ir ao estado 42
+    IDENT  deslocar, e ir ao estado 36
 
-    lista_id_var  ir ao estado 43
+    lista_id_var  ir ao estado 37
 
 
 Estado 25
 
-   60 fator_bool: ABRE_PARENTESES • expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
+   50 variavel: IDENT •
 
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    MAIS             deslocar, e ir ao estado 27
-    MENOS            deslocar, e ir ao estado 28
-    VALOR_BOOL       deslocar, e ir ao estado 29
-
-    ABRE_PARENTESES  [reduzir usando a regra 38 (mais_menos_vazio)]
-    IDENT            [reduzir usando a regra 38 (mais_menos_vazio)]
-    $padrão          reduzir usando a regra 38 (mais_menos_vazio)
-
-    expressao_int           ir ao estado 44
-    mais_menos_vazio        ir ao estado 35
-    expressao_bool          ir ao estado 45
-    expressao_simples_bool  ir ao estado 37
-    termo_bool              ir ao estado 38
-    fator_bool              ir ao estado 39
-    variavel                ir ao estado 46
-
-    conflito de deslocamento/redução no token ABRE_PARENTESES:
-       38 mais_menos_vazio: • %empty
-       60 fator_bool: • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Primeiro exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN ABRE_PARENTESES • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END PONTO $end
-      Derivação do deslocamento
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                                                                                              $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                                                                                                         PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                                                                                                                             T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ expressao
-                                                                                                                                   ↳ expressao_bool
-                                                                                                                                     ↳ expressao_simples_bool                                                                                                                                                   relacao_bool expressao_simples_bool
-                                                                                                                                       ↳ fator_bool
-                                                                                                                                         ↳ ABRE_PARENTESES expressao_bool                                                                                                   FECHA_PARENTESES $@7 NOT fator_bool
-                                                                                                                                                           ↳ expressao_simples_bool                                                     relacao_bool expressao_simples_bool
-                                                                                                                                                             ↳ termo_bool
-                                                                                                                                                               ↳ fator_bool
-                                                                                                                                                                 ↳ • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Segundo exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN ABRE_PARENTESES • ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6 relacao_int expressao_int FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END PONTO $end
-      Derivação de redução
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                                                                                     $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                                                                                                PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                                                                                                                    T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ expressao
-                                                                                                                                   ↳ expressao_bool
-                                                                                                                                     ↳ expressao_simples_bool                                                                                                                                          relacao_bool expressao_simples_bool
-                                                                                                                                       ↳ termo_bool
-                                                                                                                                         ↳ fator_bool
-                                                                                                                                           ↳ ABRE_PARENTESES expressao_bool                                                                                        FECHA_PARENTESES $@7 NOT fator_bool
-                                                                                                                                                             ↳ expressao_int                                                             relacao_int expressao_int
-                                                                                                                                                               ↳ mais_menos_vazio termo_int
-                                                                                                                                                                 ↳ •              ↳ fator_int
-                                                                                                                                                                                    ↳ ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6
-
-    conflito de deslocamento/redução no token IDENT:
-       38 mais_menos_vazio: • %empty
-       62 variavel: • IDENT
-      Primeiro exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN ABRE_PARENTESES • IDENT relacao_bool expressao_simples_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END PONTO $end
-      Derivação do deslocamento
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                                          $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                                                     PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                                                                         T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ expressao
-                                                                                                                                   ↳ expressao_bool
-                                                                                                                                     ↳ expressao_simples_bool                                                                                               relacao_bool expressao_simples_bool
-                                                                                                                                       ↳ fator_bool
-                                                                                                                                         ↳ ABRE_PARENTESES expressao_bool                                               FECHA_PARENTESES $@7 NOT fator_bool
-                                                                                                                                                           ↳ expressao_simples_bool relacao_bool expressao_simples_bool
-                                                                                                                                                             ↳ termo_bool
-                                                                                                                                                               ↳ fator_bool
-                                                                                                                                                                 ↳ variavel
-                                                                                                                                                                   ↳ • IDENT
-      Segundo exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN ABRE_PARENTESES • IDENT relacao_int expressao_int FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END PONTO $end
-      Derivação de redução
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                                           $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                                                      PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                                                                          T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ expressao
-                                                                                                                                   ↳ expressao_bool
-                                                                                                                                     ↳ expressao_simples_bool                                                                                                relacao_bool expressao_simples_bool
-                                                                                                                                       ↳ termo_bool
-                                                                                                                                         ↳ fator_bool
-                                                                                                                                           ↳ ABRE_PARENTESES expressao_bool                                              FECHA_PARENTESES $@7 NOT fator_bool
-                                                                                                                                                             ↳ expressao_int                   relacao_int expressao_int
-                                                                                                                                                               ↳ mais_menos_vazio termo_int
-                                                                                                                                                                 ↳ •              ↳ fator_int
-                                                                                                                                                                                    ↳ variavel
-                                                                                                                                                                                      ↳ IDENT
-
+    $padrão  reduzir usando a regra 50 (variavel)
 
 
 Estado 26
 
-   62 variavel: IDENT •
+   41 mais_menos_vazio: MAIS •
 
-    $padrão  reduzir usando a regra 62 (variavel)
+    $padrão  reduzir usando a regra 41 (mais_menos_vazio)
 
 
 Estado 27
 
-   36 mais_menos_vazio: MAIS •
+   42 mais_menos_vazio: MENOS •
 
-    $padrão  reduzir usando a regra 36 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
 
 
 Estado 28
 
-   37 mais_menos_vazio: MENOS •
-
-    $padrão  reduzir usando a regra 37 (mais_menos_vazio)
-
-
-Estado 29
-
-   61 fator_bool: VALOR_BOOL •
-
-    $padrão  reduzir usando a regra 61 (fator_bool)
-
-
-Estado 30
-
    19 comando_composto: T_BEGIN comandos • T_END
    21 comandos: comandos • PONTO_E_VIRGULA comando_sem_rotulo
 
-    T_END            deslocar, e ir ao estado 47
-    PONTO_E_VIRGULA  deslocar, e ir ao estado 48
+    T_END            deslocar, e ir ao estado 38
+    PONTO_E_VIRGULA  deslocar, e ir ao estado 39
 
 
-Estado 31
+Estado 29
 
    20 comandos: comando_sem_rotulo •
 
     $padrão  reduzir usando a regra 20 (comandos)
 
 
-Estado 32
+Estado 30
 
    22 comando_sem_rotulo: atribuicao •
 
     $padrão  reduzir usando a regra 22 (comando_sem_rotulo)
 
 
-Estado 33
+Estado 31
 
    23 comando_sem_rotulo: expressao •
 
     $padrão  reduzir usando a regra 23 (comando_sem_rotulo)
 
 
-Estado 34
+Estado 32
 
-   26 expressao: expressao_int •
-   34 expressao_int: expressao_int • mais_menos termo_int
-   50 expressao_bool: expressao_int • relacao_int expressao_int
+   26 expressao: expressao_simples •
+   27          | expressao_simples • relacao expressao_simples
+   28 expressao_simples: expressao_simples • mais_menos_or termo
 
-    MAIOR        deslocar, e ir ao estado 49
-    MENOR        deslocar, e ir ao estado 50
-    IGUAL        deslocar, e ir ao estado 51
-    MAIS         deslocar, e ir ao estado 52
-    MENOS        deslocar, e ir ao estado 53
-    DIFERENTE    deslocar, e ir ao estado 54
-    MENOR_IGUAL  deslocar, e ir ao estado 55
-    MAIOR_IGUAL  deslocar, e ir ao estado 56
+    OR           deslocar, e ir ao estado 40
+    MAIOR        deslocar, e ir ao estado 41
+    MENOR        deslocar, e ir ao estado 42
+    IGUAL        deslocar, e ir ao estado 43
+    MAIS         deslocar, e ir ao estado 44
+    MENOS        deslocar, e ir ao estado 45
+    DIFERENTE    deslocar, e ir ao estado 46
+    MENOR_IGUAL  deslocar, e ir ao estado 47
+    MAIOR_IGUAL  deslocar, e ir ao estado 48
 
     $padrão  reduzir usando a regra 26 (expressao)
 
-    relacao_int  ir ao estado 57
-    mais_menos   ir ao estado 58
+    relacao        ir ao estado 49
+    mais_menos_or  ir ao estado 50
+
+
+Estado 33
+
+   29 expressao_simples: mais_menos_vazio • termo
+
+    ABRE_PARENTESES  deslocar, e ir ao estado 51
+    IDENT            deslocar, e ir ao estado 25
+    NUMERO           deslocar, e ir ao estado 52
+
+    termo     ir ao estado 53
+    fator     ir ao estado 54
+    variavel  ir ao estado 55
+
+
+Estado 34
+
+   25 atribuicao: variavel • ATRIBUICAO expressao
+
+    ATRIBUICAO  deslocar, e ir ao estado 56
 
 
 Estado 35
-
-   35 expressao_int: mais_menos_vazio • termo_int
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 59
-    IDENT            deslocar, e ir ao estado 26
-    NUMERO           deslocar, e ir ao estado 60
-
-    termo_int  ir ao estado 61
-    fator_int  ir ao estado 62
-    variavel   ir ao estado 63
-
-
-Estado 36
-
-   27 expressao: expressao_bool •
-
-    $padrão  reduzir usando a regra 27 (expressao)
-
-
-Estado 37
-
-   49 expressao_bool: expressao_simples_bool • relacao_bool expressao_simples_bool
-   51               | expressao_simples_bool •
-   54 expressao_simples_bool: expressao_simples_bool • OR termo_bool
-
-    OR         deslocar, e ir ao estado 64
-    IGUAL      deslocar, e ir ao estado 65
-    DIFERENTE  deslocar, e ir ao estado 66
-
-    $padrão  reduzir usando a regra 51 (expressao_bool)
-
-    relacao_bool  ir ao estado 67
-
-
-Estado 38
-
-   55 expressao_simples_bool: termo_bool •
-   56 termo_bool: termo_bool • AND fator_int
-
-    AND  deslocar, e ir ao estado 68
-
-    $padrão  reduzir usando a regra 55 (expressao_simples_bool)
-
-
-Estado 39
-
-   57 termo_bool: fator_bool •
-
-    $padrão  reduzir usando a regra 57 (termo_bool)
-
-
-Estado 40
-
-   25 atribuicao: variavel • ATRIBUICAO expressao
-   58 fator_bool: variavel •
-
-    ATRIBUICAO  deslocar, e ir ao estado 69
-
-    $padrão  reduzir usando a regra 58 (fator_bool)
-
-
-Estado 41
 
     9 declara_vars: declara_vars declara_var •
 
     $padrão  reduzir usando a regra 9 (declara_vars)
 
 
-Estado 42
+Estado 36
 
    16 lista_id_var: IDENT •
 
     $padrão  reduzir usando a regra 16 (lista_id_var)
 
 
-Estado 43
+Estado 37
 
    13 declara_var: $@4 lista_id_var • DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA
    15 lista_id_var: lista_id_var • VIRGULA IDENT
 
-    DOIS_PONTOS  deslocar, e ir ao estado 70
-    VIRGULA      deslocar, e ir ao estado 71
+    DOIS_PONTOS  deslocar, e ir ao estado 57
+    VIRGULA      deslocar, e ir ao estado 58
 
 
-Estado 44
-
-   34 expressao_int: expressao_int • mais_menos termo_int
-   50 expressao_bool: expressao_int • relacao_int expressao_int
-
-    MAIOR        deslocar, e ir ao estado 49
-    MENOR        deslocar, e ir ao estado 50
-    IGUAL        deslocar, e ir ao estado 51
-    MAIS         deslocar, e ir ao estado 52
-    MENOS        deslocar, e ir ao estado 53
-    DIFERENTE    deslocar, e ir ao estado 54
-    MENOR_IGUAL  deslocar, e ir ao estado 55
-    MAIOR_IGUAL  deslocar, e ir ao estado 56
-
-    relacao_int  ir ao estado 57
-    mais_menos   ir ao estado 58
-
-
-Estado 45
-
-   60 fator_bool: ABRE_PARENTESES expressao_bool • FECHA_PARENTESES $@7 NOT fator_bool
-
-    FECHA_PARENTESES  deslocar, e ir ao estado 72
-
-
-Estado 46
-
-   58 fator_bool: variavel •
-
-    $padrão  reduzir usando a regra 58 (fator_bool)
-
-
-Estado 47
+Estado 38
 
    19 comando_composto: T_BEGIN comandos T_END •
 
     $padrão  reduzir usando a regra 19 (comando_composto)
 
 
-Estado 48
+Estado 39
 
    21 comandos: comandos PONTO_E_VIRGULA • comando_sem_rotulo
 
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    MAIS             deslocar, e ir ao estado 27
-    MENOS            deslocar, e ir ao estado 28
-    VALOR_BOOL       deslocar, e ir ao estado 29
+    IDENT  deslocar, e ir ao estado 25
+    MAIS   deslocar, e ir ao estado 26
+    MENOS  deslocar, e ir ao estado 27
 
-    ABRE_PARENTESES  [reduzir usando a regra 38 (mais_menos_vazio)]
-    IDENT            [reduzir usando a regra 38 (mais_menos_vazio)]
-    NUMERO           reduzir usando a regra 38 (mais_menos_vazio)
+    ABRE_PARENTESES  reduzir usando a regra 43 (mais_menos_vazio)
+    IDENT            [reduzir usando a regra 43 (mais_menos_vazio)]
+    NUMERO           reduzir usando a regra 43 (mais_menos_vazio)
     $padrão          reduzir usando a regra 24 (comando_sem_rotulo)
 
-    comando_sem_rotulo      ir ao estado 73
-    atribuicao              ir ao estado 32
-    expressao               ir ao estado 33
-    expressao_int           ir ao estado 34
-    mais_menos_vazio        ir ao estado 35
-    expressao_bool          ir ao estado 36
-    expressao_simples_bool  ir ao estado 37
-    termo_bool              ir ao estado 38
-    fator_bool              ir ao estado 39
-    variavel                ir ao estado 40
+    comando_sem_rotulo  ir ao estado 59
+    atribuicao          ir ao estado 30
+    expressao           ir ao estado 31
+    expressao_simples   ir ao estado 32
+    mais_menos_vazio    ir ao estado 33
+    variavel            ir ao estado 34
 
-    conflito de deslocamento/redução no token ABRE_PARENTESES:
-       38 mais_menos_vazio: • %empty
-       60 fator_bool: • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Primeiro exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 comandos PONTO_E_VIRGULA • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool comandos T_END PONTO $end
-      Derivação do deslocamento
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                          $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                                     PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ comandos                                                                                                                                        comandos T_END
-                                                                                                                       ↳ comandos PONTO_E_VIRGULA comando_sem_rotulo
-                                                                                                                                                  ↳ expressao
-                                                                                                                                                    ↳ expressao_bool
-                                                                                                                                                      ↳ expressao_simples_bool                                                     relacao_bool expressao_simples_bool
-                                                                                                                                                        ↳ termo_bool
-                                                                                                                                                          ↳ fator_bool
-                                                                                                                                                            ↳ • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Segundo exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN comandos PONTO_E_VIRGULA • ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6 T_END PONTO $end
-      Derivação de redução
-        $accept
-        ↳ programa                                                                                                                                                                                                                                  $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                             PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                 T_END
-                                                                                                                               ↳ comandos PONTO_E_VIRGULA comando_sem_rotulo
-                                                                                                                                                          ↳ expressao
-                                                                                                                                                            ↳ expressao_int
-                                                                                                                                                              ↳ mais_menos_vazio termo_int
-                                                                                                                                                                ↳ •              ↳ fator_int
-                                                                                                                                                                                   ↳ ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6
 
-    conflito de deslocamento/redução no token IDENT:
-       38 mais_menos_vazio: • %empty
-       62 variavel: • IDENT
-      Exemplo: • IDENT
-      Derivação do deslocamento
-        variavel
-        ↳ • IDENT
-      Derivação de redução
-        comando_sem_rotulo
-        ↳ expressao
-          ↳ expressao_int
-            ↳ mais_menos_vazio termo_int
-              ↳ •              ↳ fator_int
-                                 ↳ variavel
-                                   ↳ IDENT
+Estado 40
 
+   46 mais_menos_or: OR •
+
+    $padrão  reduzir usando a regra 46 (mais_menos_or)
+
+
+Estado 41
+
+   40 relacao: MAIOR •
+
+    $padrão  reduzir usando a regra 40 (relacao)
+
+
+Estado 42
+
+   37 relacao: MENOR •
+
+    $padrão  reduzir usando a regra 37 (relacao)
+
+
+Estado 43
+
+   35 relacao: IGUAL •
+
+    $padrão  reduzir usando a regra 35 (relacao)
+
+
+Estado 44
+
+   44 mais_menos_or: MAIS •
+
+    $padrão  reduzir usando a regra 44 (mais_menos_or)
+
+
+Estado 45
+
+   45 mais_menos_or: MENOS •
+
+    $padrão  reduzir usando a regra 45 (mais_menos_or)
+
+
+Estado 46
+
+   36 relacao: DIFERENTE •
+
+    $padrão  reduzir usando a regra 36 (relacao)
+
+
+Estado 47
+
+   38 relacao: MENOR_IGUAL •
+
+    $padrão  reduzir usando a regra 38 (relacao)
+
+
+Estado 48
+
+   39 relacao: MAIOR_IGUAL •
+
+    $padrão  reduzir usando a regra 39 (relacao)
 
 
 Estado 49
 
-   33 relacao_int: MAIOR •
+   27 expressao: expressao_simples relacao • expressao_simples
 
-    $padrão  reduzir usando a regra 33 (relacao_int)
+    MAIS   deslocar, e ir ao estado 26
+    MENOS  deslocar, e ir ao estado 27
+
+    $padrão  reduzir usando a regra 43 (mais_menos_vazio)
+
+    expressao_simples  ir ao estado 60
+    mais_menos_vazio   ir ao estado 33
 
 
 Estado 50
 
-   30 relacao_int: MENOR •
+   28 expressao_simples: expressao_simples mais_menos_or • termo
 
-    $padrão  reduzir usando a regra 30 (relacao_int)
+    ABRE_PARENTESES  deslocar, e ir ao estado 51
+    IDENT            deslocar, e ir ao estado 25
+    NUMERO           deslocar, e ir ao estado 52
+
+    termo     ir ao estado 61
+    fator     ir ao estado 54
+    variavel  ir ao estado 55
 
 
 Estado 51
 
-   28 relacao_int: IGUAL •
+   34 fator: ABRE_PARENTESES • expressao FECHA_PARENTESES
 
-    $padrão  reduzir usando a regra 28 (relacao_int)
+    MAIS   deslocar, e ir ao estado 26
+    MENOS  deslocar, e ir ao estado 27
+
+    $padrão  reduzir usando a regra 43 (mais_menos_vazio)
+
+    expressao          ir ao estado 62
+    expressao_simples  ir ao estado 32
+    mais_menos_vazio   ir ao estado 33
 
 
 Estado 52
 
-   39 mais_menos: MAIS •
+   33 fator: NUMERO •
 
-    $padrão  reduzir usando a regra 39 (mais_menos)
+    $padrão  reduzir usando a regra 33 (fator)
 
 
 Estado 53
 
-   40 mais_menos: MENOS •
+   29 expressao_simples: mais_menos_vazio termo •
+   30 termo: termo • vezes_div_and fator
 
-    $padrão  reduzir usando a regra 40 (mais_menos)
+    AND    deslocar, e ir ao estado 63
+    DIV    deslocar, e ir ao estado 64
+    VEZES  deslocar, e ir ao estado 65
+
+    $padrão  reduzir usando a regra 29 (expressao_simples)
+
+    vezes_div_and  ir ao estado 66
 
 
 Estado 54
 
-   29 relacao_int: DIFERENTE •
+   31 termo: fator •
 
-    $padrão  reduzir usando a regra 29 (relacao_int)
+    $padrão  reduzir usando a regra 31 (termo)
 
 
 Estado 55
 
-   31 relacao_int: MENOR_IGUAL •
+   32 fator: variavel •
 
-    $padrão  reduzir usando a regra 31 (relacao_int)
+    $padrão  reduzir usando a regra 32 (fator)
 
 
 Estado 56
 
-   32 relacao_int: MAIOR_IGUAL •
+   25 atribuicao: variavel ATRIBUICAO • expressao
 
-    $padrão  reduzir usando a regra 32 (relacao_int)
+    MAIS   deslocar, e ir ao estado 26
+    MENOS  deslocar, e ir ao estado 27
+
+    $padrão  reduzir usando a regra 43 (mais_menos_vazio)
+
+    expressao          ir ao estado 67
+    expressao_simples  ir ao estado 32
+    mais_menos_vazio   ir ao estado 33
 
 
 Estado 57
 
-   50 expressao_bool: expressao_int relacao_int • expressao_int
+   13 declara_var: $@4 lista_id_var DOIS_PONTOS • tipo $@5 PONTO_E_VIRGULA
 
-    MAIS   deslocar, e ir ao estado 27
-    MENOS  deslocar, e ir ao estado 28
+    TIPO  deslocar, e ir ao estado 68
 
-    $padrão  reduzir usando a regra 38 (mais_menos_vazio)
-
-    expressao_int     ir ao estado 74
-    mais_menos_vazio  ir ao estado 35
+    tipo  ir ao estado 69
 
 
 Estado 58
 
-   34 expressao_int: expressao_int mais_menos • termo_int
+   15 lista_id_var: lista_id_var VIRGULA • IDENT
 
-    ABRE_PARENTESES  deslocar, e ir ao estado 59
-    IDENT            deslocar, e ir ao estado 26
-    NUMERO           deslocar, e ir ao estado 60
-
-    termo_int  ir ao estado 75
-    fator_int  ir ao estado 62
-    variavel   ir ao estado 63
+    IDENT  deslocar, e ir ao estado 70
 
 
 Estado 59
-
-   47 fator_int: ABRE_PARENTESES • expressao_int FECHA_PARENTESES $@6
-
-    MAIS   deslocar, e ir ao estado 27
-    MENOS  deslocar, e ir ao estado 28
-
-    $padrão  reduzir usando a regra 38 (mais_menos_vazio)
-
-    expressao_int     ir ao estado 76
-    mais_menos_vazio  ir ao estado 35
-
-
-Estado 60
-
-   48 fator_int: NUMERO •
-
-    $padrão  reduzir usando a regra 48 (fator_int)
-
-
-Estado 61
-
-   35 expressao_int: mais_menos_vazio termo_int •
-   41 termo_int: termo_int • vezes_div fator_int
-
-    DIV    deslocar, e ir ao estado 77
-    VEZES  deslocar, e ir ao estado 78
-
-    $padrão  reduzir usando a regra 35 (expressao_int)
-
-    vezes_div  ir ao estado 79
-
-
-Estado 62
-
-   42 termo_int: fator_int •
-
-    $padrão  reduzir usando a regra 42 (termo_int)
-
-
-Estado 63
-
-   45 fator_int: variavel •
-
-    $padrão  reduzir usando a regra 45 (fator_int)
-
-
-Estado 64
-
-   54 expressao_simples_bool: expressao_simples_bool OR • termo_bool
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    VALOR_BOOL       deslocar, e ir ao estado 29
-
-    termo_bool  ir ao estado 80
-    fator_bool  ir ao estado 39
-    variavel    ir ao estado 46
-
-
-Estado 65
-
-   52 relacao_bool: IGUAL •
-
-    $padrão  reduzir usando a regra 52 (relacao_bool)
-
-
-Estado 66
-
-   53 relacao_bool: DIFERENTE •
-
-    $padrão  reduzir usando a regra 53 (relacao_bool)
-
-
-Estado 67
-
-   49 expressao_bool: expressao_simples_bool relacao_bool • expressao_simples_bool
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    VALOR_BOOL       deslocar, e ir ao estado 29
-
-    expressao_simples_bool  ir ao estado 81
-    termo_bool              ir ao estado 38
-    fator_bool              ir ao estado 39
-    variavel                ir ao estado 46
-
-
-Estado 68
-
-   56 termo_bool: termo_bool AND • fator_int
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 59
-    IDENT            deslocar, e ir ao estado 26
-    NUMERO           deslocar, e ir ao estado 60
-
-    fator_int  ir ao estado 82
-    variavel   ir ao estado 63
-
-
-Estado 69
-
-   25 atribuicao: variavel ATRIBUICAO • expressao
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    MAIS             deslocar, e ir ao estado 27
-    MENOS            deslocar, e ir ao estado 28
-    VALOR_BOOL       deslocar, e ir ao estado 29
-
-    ABRE_PARENTESES  [reduzir usando a regra 38 (mais_menos_vazio)]
-    IDENT            [reduzir usando a regra 38 (mais_menos_vazio)]
-    $padrão          reduzir usando a regra 38 (mais_menos_vazio)
-
-    expressao               ir ao estado 83
-    expressao_int           ir ao estado 34
-    mais_menos_vazio        ir ao estado 35
-    expressao_bool          ir ao estado 36
-    expressao_simples_bool  ir ao estado 37
-    termo_bool              ir ao estado 38
-    fator_bool              ir ao estado 39
-    variavel                ir ao estado 46
-
-    conflito de deslocamento/redução no token ABRE_PARENTESES:
-       38 mais_menos_vazio: • %empty
-       60 fator_bool: • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Primeiro exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN variavel ATRIBUICAO • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool relacao_bool expressao_simples_bool T_END PONTO $end
-      Derivação do deslocamento
-        $accept
-        ↳ programa                                                                                                                                                                                                                                                                    $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                                                               PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                                                                   T_END
-                                                                                                                               ↳ atribuicao
-                                                                                                                                 ↳ variavel ATRIBUICAO expressao
-                                                                                                                                                       ↳ expressao_bool
-                                                                                                                                                         ↳ expressao_simples_bool                                                     relacao_bool expressao_simples_bool
-                                                                                                                                                           ↳ termo_bool
-                                                                                                                                                             ↳ fator_bool
-                                                                                                                                                               ↳ • ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool
-      Segundo exemplo: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA parte_declara_vars $@2 T_BEGIN variavel ATRIBUICAO • ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6 T_END PONTO $end
-      Derivação de redução
-        $accept
-        ↳ programa                                                                                                                                                                                                                               $end
-          ↳ $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco                                                                                                                                          PONTO
-                                                                                            ↳ parte_declara_vars $@2 comando_composto
-                                                                                                                     ↳ T_BEGIN comandos                                                                                              T_END
-                                                                                                                               ↳ comando_sem_rotulo
-                                                                                                                                 ↳ atribuicao
-                                                                                                                                   ↳ variavel ATRIBUICAO expressao
-                                                                                                                                                         ↳ expressao_int
-                                                                                                                                                           ↳ mais_menos_vazio termo_int
-                                                                                                                                                             ↳ •              ↳ fator_int
-                                                                                                                                                                                ↳ ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6
-
-    conflito de deslocamento/redução no token IDENT:
-       38 mais_menos_vazio: • %empty
-       62 variavel: • IDENT
-      Exemplo: • IDENT
-      Derivação do deslocamento
-        expressao_simples_bool
-        ↳ termo_bool
-          ↳ fator_bool
-            ↳ variavel
-              ↳ • IDENT
-      Derivação de redução
-        expressao
-        ↳ expressao_int
-          ↳ mais_menos_vazio termo_int
-            ↳ •              ↳ fator_int
-                               ↳ variavel
-                                 ↳ IDENT
-
-
-
-Estado 70
-
-   13 declara_var: $@4 lista_id_var DOIS_PONTOS • tipo $@5 PONTO_E_VIRGULA
-
-    TIPO  deslocar, e ir ao estado 84
-
-    tipo  ir ao estado 85
-
-
-Estado 71
-
-   15 lista_id_var: lista_id_var VIRGULA • IDENT
-
-    IDENT  deslocar, e ir ao estado 86
-
-
-Estado 72
-
-   60 fator_bool: ABRE_PARENTESES expressao_bool FECHA_PARENTESES • $@7 NOT fator_bool
-
-    $padrão  reduzir usando a regra 59 ($@7)
-
-    $@7  ir ao estado 87
-
-
-Estado 73
 
    21 comandos: comandos PONTO_E_VIRGULA comando_sem_rotulo •
 
     $padrão  reduzir usando a regra 21 (comandos)
 
 
-Estado 74
+Estado 60
 
-   34 expressao_int: expressao_int • mais_menos termo_int
-   50 expressao_bool: expressao_int relacao_int expressao_int •
+   27 expressao: expressao_simples relacao expressao_simples •
+   28 expressao_simples: expressao_simples • mais_menos_or termo
 
-    MAIS   deslocar, e ir ao estado 52
-    MENOS  deslocar, e ir ao estado 53
+    OR     deslocar, e ir ao estado 40
+    MAIS   deslocar, e ir ao estado 44
+    MENOS  deslocar, e ir ao estado 45
 
-    $padrão  reduzir usando a regra 50 (expressao_bool)
+    $padrão  reduzir usando a regra 27 (expressao)
 
-    mais_menos  ir ao estado 58
-
-
-Estado 75
-
-   34 expressao_int: expressao_int mais_menos termo_int •
-   41 termo_int: termo_int • vezes_div fator_int
-
-    DIV    deslocar, e ir ao estado 77
-    VEZES  deslocar, e ir ao estado 78
-
-    $padrão  reduzir usando a regra 34 (expressao_int)
-
-    vezes_div  ir ao estado 79
+    mais_menos_or  ir ao estado 50
 
 
-Estado 76
+Estado 61
 
-   34 expressao_int: expressao_int • mais_menos termo_int
-   47 fator_int: ABRE_PARENTESES expressao_int • FECHA_PARENTESES $@6
+   28 expressao_simples: expressao_simples mais_menos_or termo •
+   30 termo: termo • vezes_div_and fator
 
-    FECHA_PARENTESES  deslocar, e ir ao estado 88
-    MAIS              deslocar, e ir ao estado 52
-    MENOS             deslocar, e ir ao estado 53
+    AND    deslocar, e ir ao estado 63
+    DIV    deslocar, e ir ao estado 64
+    VEZES  deslocar, e ir ao estado 65
 
-    mais_menos  ir ao estado 58
+    $padrão  reduzir usando a regra 28 (expressao_simples)
 
-
-Estado 77
-
-   44 vezes_div: DIV •
-
-    $padrão  reduzir usando a regra 44 (vezes_div)
+    vezes_div_and  ir ao estado 66
 
 
-Estado 78
+Estado 62
 
-   43 vezes_div: VEZES •
+   34 fator: ABRE_PARENTESES expressao • FECHA_PARENTESES
 
-    $padrão  reduzir usando a regra 43 (vezes_div)
-
-
-Estado 79
-
-   41 termo_int: termo_int vezes_div • fator_int
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 59
-    IDENT            deslocar, e ir ao estado 26
-    NUMERO           deslocar, e ir ao estado 60
-
-    fator_int  ir ao estado 89
-    variavel   ir ao estado 63
+    FECHA_PARENTESES  deslocar, e ir ao estado 71
 
 
-Estado 80
+Estado 63
 
-   54 expressao_simples_bool: expressao_simples_bool OR termo_bool •
-   56 termo_bool: termo_bool • AND fator_int
+   49 vezes_div_and: AND •
 
-    AND  deslocar, e ir ao estado 68
-
-    $padrão  reduzir usando a regra 54 (expressao_simples_bool)
+    $padrão  reduzir usando a regra 49 (vezes_div_and)
 
 
-Estado 81
+Estado 64
 
-   49 expressao_bool: expressao_simples_bool relacao_bool expressao_simples_bool •
-   54 expressao_simples_bool: expressao_simples_bool • OR termo_bool
+   48 vezes_div_and: DIV •
 
-    OR  deslocar, e ir ao estado 64
-
-    $padrão  reduzir usando a regra 49 (expressao_bool)
+    $padrão  reduzir usando a regra 48 (vezes_div_and)
 
 
-Estado 82
+Estado 65
 
-   56 termo_bool: termo_bool AND fator_int •
+   47 vezes_div_and: VEZES •
 
-    $padrão  reduzir usando a regra 56 (termo_bool)
+    $padrão  reduzir usando a regra 47 (vezes_div_and)
 
 
-Estado 83
+Estado 66
+
+   30 termo: termo vezes_div_and • fator
+
+    ABRE_PARENTESES  deslocar, e ir ao estado 51
+    IDENT            deslocar, e ir ao estado 25
+    NUMERO           deslocar, e ir ao estado 52
+
+    fator     ir ao estado 72
+    variavel  ir ao estado 55
+
+
+Estado 67
 
    25 atribuicao: variavel ATRIBUICAO expressao •
 
     $padrão  reduzir usando a regra 25 (atribuicao)
 
 
-Estado 84
+Estado 68
 
    14 tipo: TIPO •
 
     $padrão  reduzir usando a regra 14 (tipo)
 
 
-Estado 85
+Estado 69
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo • $@5 PONTO_E_VIRGULA
 
     $padrão  reduzir usando a regra 12 ($@5)
 
-    $@5  ir ao estado 90
+    $@5  ir ao estado 73
 
 
-Estado 86
+Estado 70
 
    15 lista_id_var: lista_id_var VIRGULA IDENT •
 
     $padrão  reduzir usando a regra 15 (lista_id_var)
 
 
-Estado 87
+Estado 71
 
-   60 fator_bool: ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 • NOT fator_bool
+   34 fator: ABRE_PARENTESES expressao FECHA_PARENTESES •
 
-    NOT  deslocar, e ir ao estado 91
-
-
-Estado 88
-
-   47 fator_int: ABRE_PARENTESES expressao_int FECHA_PARENTESES • $@6
-
-    $padrão  reduzir usando a regra 46 ($@6)
-
-    $@6  ir ao estado 92
+    $padrão  reduzir usando a regra 34 (fator)
 
 
-Estado 89
+Estado 72
 
-   41 termo_int: termo_int vezes_div fator_int •
+   30 termo: termo vezes_div_and fator •
 
-    $padrão  reduzir usando a regra 41 (termo_int)
+    $padrão  reduzir usando a regra 30 (termo)
 
 
-Estado 90
+Estado 73
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 • PONTO_E_VIRGULA
 
-    PONTO_E_VIRGULA  deslocar, e ir ao estado 93
+    PONTO_E_VIRGULA  deslocar, e ir ao estado 74
 
 
-Estado 91
-
-   60 fator_bool: ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT • fator_bool
-
-    ABRE_PARENTESES  deslocar, e ir ao estado 25
-    IDENT            deslocar, e ir ao estado 26
-    VALOR_BOOL       deslocar, e ir ao estado 29
-
-    fator_bool  ir ao estado 94
-    variavel    ir ao estado 46
-
-
-Estado 92
-
-   47 fator_int: ABRE_PARENTESES expressao_int FECHA_PARENTESES $@6 •
-
-    $padrão  reduzir usando a regra 47 (fator_int)
-
-
-Estado 93
+Estado 74
 
    13 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA •
 
     $padrão  reduzir usando a regra 13 (declara_var)
-
-
-Estado 94
-
-   60 fator_bool: ABRE_PARENTESES expressao_bool FECHA_PARENTESES $@7 NOT fator_bool •
-
-    $padrão  reduzir usando a regra 60 (fator_bool)

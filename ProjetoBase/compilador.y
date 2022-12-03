@@ -50,10 +50,10 @@ int str2type(const char *str){
 }
 
 %type <str> variavel; // atribui o tipo str a regra variavel
-%type <str> mais_menos;
-%type <str> vezes_div;
-%type <int_val> fator_int;
-%type <int_val> termo_int;
+%type <str> mais_menos_or;
+%type <str> vezes_div_and;
+%type <int_val> fator;
+%type <int_val> termo;
 %type <int_val> tipo;
 
 %%
@@ -150,18 +150,41 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
-expressao   : expressao_int {printf("aaaaa int\n");} | expressao_bool {printf("aaaaa bool\n");}
-
-relacao_int : IGUAL
-            | DIFERENTE
-            | MENOR
-            | MENOR_IGUAL
-            | MAIOR_IGUAL
-            | MAIOR
+expressao   : expressao_simples 
+            | expressao_simples relacao expressao_simples
 ;
 
-expressao_int : expressao_int mais_menos termo_int { geraCodigo(NULL, $2); }
-                  | mais_menos_vazio termo_int { /* lidar com mais ou menos */ }
+expressao_simples : expressao_simples mais_menos_or termo {
+                     geraCodigo(NULL, $2);
+                  }
+                  | mais_menos_vazio termo 
+;
+
+termo : termo vezes_div_and fator { 
+         geraCodigo(NULL, $2); 
+      }
+      | fator
+;
+
+fator : variavel { 
+         sptr = busca(&ts, $1);
+         sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+         geraCodigo(NULL, mepa_buf);
+      } 
+      | NUMERO  {
+         sprintf (mepa_buf, "CRCT %d", atoi(token));
+         geraCodigo(NULL, mepa_buf);
+      }
+      | ABRE_PARENTESES expressao FECHA_PARENTESES
+      {/* falta not fator e chamada de função */}
+;
+
+relacao  : IGUAL
+         | DIFERENTE
+         | MENOR
+         | MENOR_IGUAL
+         | MAIOR_IGUAL
+         | MAIOR
 ;
 
 mais_menos_vazio  : MAIS 
@@ -169,59 +192,14 @@ mais_menos_vazio  : MAIS
                   | 
 ;
 
-mais_menos     : MAIS { $$ = strdup("SOMA"); }
+mais_menos_or  : MAIS { $$ = strdup("SOMA"); }
                | MENOS { $$ = strdup("SUBT"); } 
+               | OR { $$ = strdup("DISJ"); }
 ; 
 
-termo_int         : termo_int vezes_div fator_int { geraCodigo (NULL, $2); }
-                  | fator_int { printf("AAAAAAAAAAAAA cheguei no fator\n") ;}
-;
-
-vezes_div      : VEZES { $$ = strdup("MULT"); }
+vezes_div_and  : VEZES { $$ = strdup("MULT"); }
                | DIV { $$ = strdup("DIVI"); }
-;
-
-fator_int         : variavel { 
-                     sptr = busca(&ts, $1);
-                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
-                     geraCodigo(NULL, mepa_buf);
-                  } 
-                  | ABRE_PARENTESES expressao_int FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
-                  {/*| NOT fator_int */}
-                  | NUMERO {
-                     sprintf (mepa_buf, "CRCT %d", atoi(token));
-                     geraCodigo(NULL, mepa_buf);
-                  }
-;
-
-expressao_bool : expressao_simples_bool relacao_bool expressao_simples_bool
-               | expressao_int relacao_int expressao_int
-               | expressao_simples_bool;
-
-relacao_bool   : IGUAL
-               | DIFERENTE
-;
-
-expressao_simples_bool : expressao_simples_bool OR termo_bool 
-                  { geraCodigo(NULL, "DISJ"); }
-                  | termo_bool 
-;
-
-termo_bool         : termo_bool AND fator_int { geraCodigo (NULL, "CONJ"); }
-                  | fator_bool 
-;
-
-fator_bool         : variavel { 
-                     sptr = busca(&ts, $1);
-                     sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
-                     geraCodigo(NULL, mepa_buf);
-                  } 
-                  | ABRE_PARENTESES expressao_bool FECHA_PARENTESES { /* ppc - acho que precisa dos parenteses */ }
-                  NOT fator_bool
-                  | VALOR_BOOL {
-                     sprintf (mepa_buf, "CRCT %d", atoi(token));
-                     geraCodigo(NULL, mepa_buf);
-                  }
+               | AND { $$ = strdup("CONJ"); }
 ;
 
 variavel          :  IDENT { $$ = strdup(token); } ;
