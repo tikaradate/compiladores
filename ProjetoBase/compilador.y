@@ -179,12 +179,12 @@ fator : variavel {
       {/* falta not fator e chamada de função */}
 ;
 
-relacao  : IGUAL
-         | DIFERENTE
-         | MENOR
-         | MENOR_IGUAL
-         | MAIOR_IGUAL
-         | MAIOR
+relacao  : IGUAL        { $$ = "CMIG"; }
+         | DIFERENTE    { $$ = "CMDG"; }
+         | MENOR        { $$ = "CMME"; }
+         | MENOR_IGUAL  { $$ = "CMEG"; }
+         | MAIOR_IGUAL  { $$ = "CMAG"; }
+         | MAIOR        { $$ = "CMMA"; }
 ;
 
 mais_menos_vazio  : MAIS 
