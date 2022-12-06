@@ -34,6 +34,8 @@ descarte [\t ]+
 
 tipo (integer|boolean)
 
+valor_bool (True|False)
+
 ident [a-zA-Z][a-zA-Z0-9]*
 
 numero [0-9]+
@@ -289,16 +291,10 @@ div      { simbolo = simb_div;
           return MAIOR_IGUAL;
  }
 
-true { simbolo = simb_true;
+{valor_bool} { simbolo = simb_valor_bool;
           strncpy (token, yytext, TAM_TOKEN);
-          IMPRIME(" true ");
-          return PAS_TRUE;
- }
-
-false { simbolo = simb_false;
-          strncpy (token, yytext, TAM_TOKEN);
-          IMPRIME(" false ");
-          return PAS_FALSE;
+          IMPRIME(" valor bool ");
+          return VALOR_BOOL;
  }
 
 {tipo} { simbolo = simb_tipo;

@@ -10,7 +10,8 @@ enum tipo_simbolo{
 enum tipo_variavel{
     pas_integer,
     pas_float,
-    pas_boolean
+    pas_boolean,
+    undefined_type
 };
 
 /* Três tipos de símbolos */
@@ -43,6 +44,6 @@ struct simbolo{
     } conteudo;
 };
 
-struct simbolo cria_simbolo(char *ident, int cat, int niv, int tipo_simb, union cat_conteudo tipo);
+struct simbolo cria_simbolo(char *ident, int cat, int niv, union cat_conteudo tipo);
 
 #endif
