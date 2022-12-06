@@ -29,6 +29,9 @@ int str2type(const char *str){
    if (!strcmp(str, "boolean")) return pas_boolean;
    return undefined_type;
 }
+short int rot_num;
+char rot_str[4];
+int rot_w;
 
 %}
 
@@ -63,9 +66,11 @@ int str2type(const char *str){
 
 %%
 
+// ========== REGRA 01 ========== //
 programa    :{
              geraCodigo (NULL, "INPP");
              nivel_lex = 0;
+             rot_num = 0;
              }
              PROGRAM IDENT
              ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA
@@ -74,6 +79,7 @@ programa    :{
              }
 ;
 
+// ========== REGRA 02 ========== //
 bloco       :
               parte_declara_vars
               {
@@ -87,20 +93,15 @@ bloco       :
               }
               ;
 
-
-
-
-parte_declara_vars:  var
-;
-
-
-var         : { num_vars = 0; } VAR declara_vars { 
+// ========== REGRA 08 ========== //
+parte_declara_vars: { num_vars = 0; } VAR declara_vars { 
                sprintf(mepa_buf, "AMEM %d", num_vars);
                geraCodigo(NULL, mepa_buf);
                }
             |
 ;
 
+// ========== REGRA 09 ========== //
 declara_vars: declara_vars declara_var
             | declara_var
 ;
@@ -113,6 +114,11 @@ declara_var : { qt_tipo_atual = 0; }
 ;
 
 tipo        : TIPO { $$ = str2type(token); }
+;
+
+// ========== REGRA 10 ========== //
+lista_idents: lista_idents VIRGULA IDENT
+            | IDENT
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT {
@@ -129,22 +135,21 @@ lista_id_var: lista_id_var VIRGULA IDENT {
             }
 ;
 
-lista_idents: lista_idents VIRGULA IDENT
-            | IDENT
-;
 
-
+// ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
 ;
 
+// ========== REGRA 17 ========== //
 comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
-
+// ========== REGRA 18 ========== //
 comando_sem_rotulo: atribuicao 
+                  | comando_repetitivo
                   |
 ;
 
-
+// ========== REGRA 19 ========== //
 atribuicao: variavel ATRIBUICAO expressao {
    if($1->conteudo.var.tipo != $3){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
@@ -280,6 +285,26 @@ fator : variavel {
 
 // ========== REGRA 30 ========== //
 variavel          :  IDENT { $$ = busca(&ts, token); } ;
+
+comando_repetitivo:  WHILE {
+                        sprintf(rot_str, "R%02d", rot_num++); 
+                        geraCodigo(rot_str, "NADA");
+                        rot_w = rot_num++;
+                     }
+                     expressao {
+                        sprintf(mepa_buf, "DSVF R%02d", rot_w);
+                        geraCodigo(NULL, mepa_buf);
+                     }
+                     DO 
+                     comando_sem_rotulo{
+                        sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
+                        geraCodigo(NULL, mepa_buf);
+
+                        sprintf(rot_str, "R%02d", rot_w);
+                        geraCodigo(rot_str, "NADA");
+                     }
+;
+
 
 %%
 
