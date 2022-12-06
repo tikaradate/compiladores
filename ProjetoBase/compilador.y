@@ -163,6 +163,27 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
+// ========== REGRA 23 ========== //
+comando_repetitivo:  WHILE {
+                        sprintf(rot_str, "R%02d", rot_num++); 
+                        geraCodigo(rot_str, "NADA");
+                        rot_w = rot_num++;
+                     }
+                     expressao {
+                        sprintf(mepa_buf, "DSVF R%02d", rot_w);
+                        geraCodigo(NULL, mepa_buf);
+                     }
+                     DO 
+                     comando_sem_rotulo{
+                        sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
+                        geraCodigo(NULL, mepa_buf);
+
+                        sprintf(rot_str, "R%02d", rot_w);
+                        geraCodigo(rot_str, "NADA");
+                     }
+;
+
+
 // ========== REGRA 25 ========== //
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
@@ -285,26 +306,6 @@ fator : variavel {
 
 // ========== REGRA 30 ========== //
 variavel          :  IDENT { $$ = busca(&ts, token); } ;
-
-comando_repetitivo:  WHILE {
-                        sprintf(rot_str, "R%02d", rot_num++); 
-                        geraCodigo(rot_str, "NADA");
-                        rot_w = rot_num++;
-                     }
-                     expressao {
-                        sprintf(mepa_buf, "DSVF R%02d", rot_w);
-                        geraCodigo(NULL, mepa_buf);
-                     }
-                     DO 
-                     comando_sem_rotulo{
-                        sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
-                        geraCodigo(NULL, mepa_buf);
-
-                        sprintf(rot_str, "R%02d", rot_w);
-                        geraCodigo(rot_str, "NADA");
-                     }
-;
-
 
 %%
 
