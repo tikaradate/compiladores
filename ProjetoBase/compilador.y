@@ -52,6 +52,7 @@ int str2type(const char *str){
 %type <str> variavel; // atribui o tipo str a regra variavel
 %type <str> mais_menos_or;
 %type <str> vezes_div_and;
+%type <str> relacao;
 %type <int_val> fator;
 %type <int_val> termo;
 %type <int_val> tipo;
@@ -150,18 +151,49 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
-expressao   : expressao_simples 
-            | expressao_simples relacao expressao_simples
+expressao   : expressao_simples { $$ = $1; } 
+            | expressao_simples relacao expressao_simples{
+               if ($1 != $3){
+                  fprintf(stderr, "COMPILATION ERROR!!!\nCannot compare expressions with different types!\n");
+                  exit(1);
+               }
+               $$ = pas_boolean;
+            }
 ;
 
 expressao_simples : expressao_simples mais_menos_or termo {
+                     if (strcmp($2, "DISJ") == 0){
+                        if ($1 != pas_boolean || $3 != pas_boolean){
+                           fprintf(stderr, "COMPILATION ERROR!!!\n Boolean operation with non-boolean operands!\n");
+                           exit(1);
+                        }
+                        $$ = pas_boolean;
+                     }
+                     else {
+                        if ($1 != pas_integer || $3 != pas_integer){
+                           fprintf(stderr, "COMPILATION ERROR!!!\n Integer operation with non-integer operands!\n");
+                           exit(1);
+                        }
+                        $$ = pas_integer;
+                     }
+                     
                      geraCodigo(NULL, $2);
                   }
-                  | mais_menos_vazio termo 
+                  | mais_menos_vazio termo{
+                     if ( strcmp($1, "VAZIO") != 0){
+                        if ($2 != pas_int){
+                           fprintf(stderr, "COMPILATION ERROR!!!\n Sign on non integer type!\n");
+                           exit(1);
+                        }
+                        $$ = pas_integer;
+                     } else {
+                        $$ = $2;
+                     }
+                  } 
 ;
 
 termo : termo vezes_div_and fator { 
-         geraCodigo(NULL, $2); 
+         geraCodigo(NULL, $2);
       }
       | fator
 ;
@@ -187,9 +219,9 @@ relacao  : IGUAL        { $$ = "CMIG"; }
          | MAIOR        { $$ = "CMMA"; }
 ;
 
-mais_menos_vazio  : MAIS 
-                  | MENOS 
-                  | 
+mais_menos_vazio  : MAIS  { $$ = "MAIS"; }
+                  | MENOS { $$ = "MENOS"; }
+                  |       { $$ = "VAZIO"; }
 ;
 
 mais_menos_or  : MAIS { $$ = strdup("SOMA"); }
