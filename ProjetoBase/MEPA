@@ -1,25 +1,8 @@
      INPP
      AMEM 4
-<<<<<<< HEAD
-     CRCT 3
-     CRCT 4
-     SOMA
-     CRCT 1
-     CRCT 2
-     SOMA
-     SOMA
-     ARMZ 0 2
-     CRCT 3
-     CRCT 4
-     ARMZ 0 0
-     CRCT 2
-=======
-     CRCT 0
-     ARMZ 0 2
 R00: NADA 
      CRVL 0 2
      CRCT 3
-     CMME
      DSVF R01
      CRVL 0 2
      CRCT 1
@@ -28,4 +11,3 @@ R00: NADA
      DSVS R00
 R01: NADA 
      PARA
->>>>>>> 6a36cf1 (funciona while sem comando composto)

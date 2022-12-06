@@ -24,17 +24,14 @@ struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
 union cat_conteudo ti;
 
-<<<<<<< HEAD
 int str2type(const char *str){
    if (!strcmp(str, "integer")) return pas_integer;
    if (!strcmp(str, "boolean")) return pas_boolean;
    return undefined_type;
 }
-=======
 short int rot_num;
 char rot_str[4];
 int rot_w;
->>>>>>> 6a36cf1 (funciona while sem comando composto)
 
 %}
 
@@ -69,6 +66,7 @@ int rot_w;
 
 %%
 
+// ========== REGRA 01 ========== //
 programa    :{
              geraCodigo (NULL, "INPP");
              nivel_lex = 0;
@@ -81,6 +79,7 @@ programa    :{
              }
 ;
 
+// ========== REGRA 02 ========== //
 bloco       :
               parte_declara_vars
               {
@@ -94,20 +93,15 @@ bloco       :
               }
               ;
 
-
-
-
-parte_declara_vars:  var
-;
-
-
-var         : { num_vars = 0; } VAR declara_vars { 
+// ========== REGRA 08 ========== //
+parte_declara_vars: { num_vars = 0; } VAR declara_vars { 
                sprintf(mepa_buf, "AMEM %d", num_vars);
                geraCodigo(NULL, mepa_buf);
                }
             |
 ;
 
+// ========== REGRA 09 ========== //
 declara_vars: declara_vars declara_var
             | declara_var
 ;
@@ -120,6 +114,11 @@ declara_var : { qt_tipo_atual = 0; }
 ;
 
 tipo        : TIPO { $$ = str2type(token); }
+;
+
+// ========== REGRA 10 ========== //
+lista_idents: lista_idents VIRGULA IDENT
+            | IDENT
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT {
@@ -136,23 +135,21 @@ lista_id_var: lista_id_var VIRGULA IDENT {
             }
 ;
 
-lista_idents: lista_idents VIRGULA IDENT
-            | IDENT
-;
 
-
+// ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
 ;
 
+// ========== REGRA 17 ========== //
 comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
-
+// ========== REGRA 18 ========== //
 comando_sem_rotulo: atribuicao 
                   | comando_repetitivo
                   |
 ;
 
-
+// ========== REGRA 19 ========== //
 atribuicao: variavel ATRIBUICAO expressao {
    if($1->conteudo.var.tipo != $3){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
@@ -166,7 +163,6 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
-<<<<<<< HEAD
 // ========== REGRA 25 ========== //
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
@@ -185,20 +181,6 @@ relacao  : IGUAL        { $$ = "CMIG"; }
          | MENOR_IGUAL  { $$ = "CMEG"; }
          | MAIOR_IGUAL  { $$ = "CMAG"; }
          | MAIOR        { $$ = "CMMA"; }
-=======
-expressao   : expressao_simples relacao expressao_simples {
-               geraCodigo(NULL, $2);
-            }
-            | expressao_simples  
-; 
-
-relacao     : IGUAL        { $$ = "CMIG"; }
-            | DIFERENTE    { $$ = "CMDG"; }
-            | MENOR        { $$ = "CMME"; }
-            | MENOR_IGUAL  { $$ = "CMEG"; }
-            | MAIOR_IGUAL  { $$ = "CMAG"; }
-            | MAIOR        { $$ = "CMMA"; }
->>>>>>> 6a36cf1 (funciona while sem comando composto)
 ;
 
 // ========== REGRA 27 ========== //
