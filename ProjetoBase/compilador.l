@@ -34,7 +34,7 @@ descarte [\t ]+
 
 tipo (integer|boolean)
 
-valor_bool (true|false)
+valor_bool (True|False)
 
 ident [a-zA-Z][a-zA-Z0-9]*
 

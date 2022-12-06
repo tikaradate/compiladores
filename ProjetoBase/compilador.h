@@ -30,10 +30,6 @@ typedef enum simbolos {
   simb_maior_igual, simb_valor_bool, simb_tipo
 } simbolos;
 
-typedef enum tipos_pascal {
-  pas_integer, pas_boolean
-} tipos_pascal;
-
 /* -------------------------------------------------------------------
  * variáveis globais
  * ------------------------------------------------------------------- */

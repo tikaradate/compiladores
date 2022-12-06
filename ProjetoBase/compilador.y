@@ -47,12 +47,16 @@ int str2type(const char *str){
 %union{
    char * str;  // define o tipo str
    int int_val; // define o tipo int_val
+   struct simbolo *simb;
 }
 
-%type <str> variavel; // atribui o tipo str a regra variavel
-%type <str> mais_menos_or;
+%type <simb> variavel; // atribui o tipo str a regra variavel
+%type <str> mais_menos_or; // numa expressão
+%type <str> mais_menos_vazio; // antes de um fator
 %type <str> vezes_div_and;
 %type <str> relacao;
+%type <int_val> expressao;
+%type <int_val> expressao_simples;
 %type <int_val> fator;
 %type <int_val> termo;
 %type <int_val> tipo;
@@ -143,8 +147,12 @@ comando_sem_rotulo: atribuicao
 
 
 atribuicao: variavel ATRIBUICAO expressao {
+   if($1->conteudo.var.tipo != $3){
+      fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
+      exit(1);
+   }
    /* busca posição da variavel */
-   sptr = busca( &ts, $1 );
+   sptr = busca( &ts, $1->identificador );
 
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
@@ -181,7 +189,7 @@ expressao_simples : expressao_simples mais_menos_or termo {
                   }
                   | mais_menos_vazio termo{
                      if ( strcmp($1, "VAZIO") != 0){
-                        if ($2 != pas_int){
+                        if ($2 != pas_integer){
                            fprintf(stderr, "COMPILATION ERROR!!!\n Sign on non integer type!\n");
                            exit(1);
                         }
@@ -193,23 +201,51 @@ expressao_simples : expressao_simples mais_menos_or termo {
 ;
 
 termo : termo vezes_div_and fator { 
+         if (strcmp($2, "CONJ") == 0){
+            if ($1 != pas_boolean || $3 != pas_boolean){
+               fprintf(stderr, "COMPILATION ERROR!!!\n Boolean operation with non-boolean operands!\n");
+               exit(1);
+            }
+            $$ = pas_boolean;
+         }
+         else {
+            if ($1 != pas_integer || $3 != pas_integer){
+               fprintf(stderr, "COMPILATION ERROR!!!\n Integer operation with non-integer operands!\n");
+               exit(1);
+            }
+            $$ = pas_integer;
+         }
          geraCodigo(NULL, $2);
       }
       | fator
 ;
 
 fator : variavel { 
-         sptr = busca(&ts, $1);
+         sptr = busca(&ts, $1->identificador);
+         $$ = sptr->conteudo.var.tipo;
          sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
          geraCodigo(NULL, mepa_buf);
       } 
-      | NUMERO  {
+      | NUMERO {
+         $$ = pas_integer;
          sprintf (mepa_buf, "CRCT %d", atoi(token));
          geraCodigo(NULL, mepa_buf);
       }
+      | VALOR_BOOL {
+         $$ = pas_boolean;
+         if(strcmp(token, "True") == 0)
+            sprintf (mepa_buf, "CRCT %d", 1);
+         else
+            sprintf (mepa_buf, "CRCT %d", 0);
+         geraCodigo(NULL, mepa_buf);
+      }
       | ABRE_PARENTESES expressao FECHA_PARENTESES
-      {/* falta not fator e chamada de função */}
+      {
+      }
+         /* falta not fator e chamada de função */
 ;
+
+
 
 relacao  : IGUAL        { $$ = "CMIG"; }
          | DIFERENTE    { $$ = "CMDG"; }
@@ -234,7 +270,7 @@ vezes_div_and  : VEZES { $$ = strdup("MULT"); }
                | AND { $$ = strdup("CONJ"); }
 ;
 
-variavel          :  IDENT { $$ = strdup(token); } ;
+variavel          :  IDENT { $$ = busca(&ts, token); } ;
 
 %%
 
