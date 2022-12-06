@@ -191,6 +191,7 @@ expressao   : expressao_simples { $$ = $1; }
                   fprintf(stderr, "COMPILATION ERROR!!!\nCannot compare expressions with different types!\n");
                   exit(1);
                }
+               geraCodigo(NULL, $2);
                $$ = pas_boolean;
             }
 ;
@@ -233,6 +234,9 @@ expressao_simples : expressao_simples mais_menos_or termo {
                      } else {
                         $$ = $2;
                      }
+                     
+                     if ( strcmp($1, "MENOS") == 0 )
+                        geraCodigo(NULL, "INVR");
                   } 
 ;
 
@@ -300,6 +304,7 @@ fator : variavel {
             exit(1);
          }
          $$ = pas_boolean;
+         geraCodigo(NULL, "NEGA");
        }
          /* falta chamada de função */
 ;

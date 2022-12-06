@@ -589,9 +589,9 @@ static const yytype_int16 yyrline[] =
        0,    70,    70,    70,    85,    84,    97,    97,   101,   105,
      106,   109,   112,   109,   116,   120,   121,   124,   130,   140,
      144,   144,   147,   148,   149,   153,   167,   172,   167,   188,
-     189,   199,   200,   201,   202,   203,   204,   208,   226,   239,
-     240,   241,   244,   245,   246,   250,   267,   270,   271,   272,
-     276,   282,   287,   295,   296,   308
+     189,   200,   201,   202,   203,   204,   205,   209,   227,   243,
+     244,   245,   248,   249,   250,   254,   271,   274,   275,   276,
+     280,   286,   291,   299,   300,   313
 };
 #endif
 
@@ -1375,49 +1375,50 @@ yyreduce:
                   fprintf(stderr, "COMPILATION ERROR!!!\nCannot compare expressions with different types!\n");
                   exit(1);
                }
+               geraCodigo(NULL, (yyvsp[-1].str));
                (yyval.int_val) = pas_boolean;
             }
-#line 1381 "compilador.tab.c"
+#line 1382 "compilador.tab.c"
     break;
 
   case 31: /* relacao: IGUAL  */
-#line 199 "compilador.y"
+#line 200 "compilador.y"
                         { (yyval.str) = "CMIG"; }
-#line 1387 "compilador.tab.c"
+#line 1388 "compilador.tab.c"
     break;
 
   case 32: /* relacao: DIFERENTE  */
-#line 200 "compilador.y"
+#line 201 "compilador.y"
                         { (yyval.str) = "CMDG"; }
-#line 1393 "compilador.tab.c"
+#line 1394 "compilador.tab.c"
     break;
 
   case 33: /* relacao: MENOR  */
-#line 201 "compilador.y"
+#line 202 "compilador.y"
                         { (yyval.str) = "CMME"; }
-#line 1399 "compilador.tab.c"
+#line 1400 "compilador.tab.c"
     break;
 
   case 34: /* relacao: MENOR_IGUAL  */
-#line 202 "compilador.y"
+#line 203 "compilador.y"
                         { (yyval.str) = "CMEG"; }
-#line 1405 "compilador.tab.c"
+#line 1406 "compilador.tab.c"
     break;
 
   case 35: /* relacao: MAIOR_IGUAL  */
-#line 203 "compilador.y"
+#line 204 "compilador.y"
                         { (yyval.str) = "CMAG"; }
-#line 1411 "compilador.tab.c"
+#line 1412 "compilador.tab.c"
     break;
 
   case 36: /* relacao: MAIOR  */
-#line 204 "compilador.y"
+#line 205 "compilador.y"
                         { (yyval.str) = "CMMA"; }
-#line 1417 "compilador.tab.c"
+#line 1418 "compilador.tab.c"
     break;
 
   case 37: /* expressao_simples: expressao_simples mais_menos_or termo  */
-#line 208 "compilador.y"
+#line 209 "compilador.y"
                                                           {
                      if (strcmp((yyvsp[-1].str), "DISJ") == 0){
                         if ((yyvsp[-2].int_val) != pas_boolean || (yyvsp[0].int_val) != pas_boolean){
@@ -1436,11 +1437,11 @@ yyreduce:
                      
                      geraCodigo(NULL, (yyvsp[-1].str));
                   }
-#line 1440 "compilador.tab.c"
+#line 1441 "compilador.tab.c"
     break;
 
   case 38: /* expressao_simples: mais_menos_vazio termo  */
-#line 226 "compilador.y"
+#line 227 "compilador.y"
                                           {
                      if ( strcmp((yyvsp[-1].str), "VAZIO") != 0){
                         if ((yyvsp[0].int_val) != pas_integer){
@@ -1451,48 +1452,51 @@ yyreduce:
                      } else {
                         (yyval.int_val) = (yyvsp[0].int_val);
                      }
+                     
+                     if ( strcmp((yyvsp[-1].str), "MENOS") == 0 )
+                        geraCodigo(NULL, "INVR");
                   }
-#line 1456 "compilador.tab.c"
+#line 1460 "compilador.tab.c"
     break;
 
   case 39: /* mais_menos_vazio: MAIS  */
-#line 239 "compilador.y"
+#line 243 "compilador.y"
                           { (yyval.str) = "MAIS"; }
-#line 1462 "compilador.tab.c"
+#line 1466 "compilador.tab.c"
     break;
 
   case 40: /* mais_menos_vazio: MENOS  */
-#line 240 "compilador.y"
+#line 244 "compilador.y"
                           { (yyval.str) = "MENOS"; }
-#line 1468 "compilador.tab.c"
+#line 1472 "compilador.tab.c"
     break;
 
   case 41: /* mais_menos_vazio: %empty  */
-#line 241 "compilador.y"
+#line 245 "compilador.y"
                           { (yyval.str) = "VAZIO"; }
-#line 1474 "compilador.tab.c"
+#line 1478 "compilador.tab.c"
     break;
 
   case 42: /* mais_menos_or: MAIS  */
-#line 244 "compilador.y"
+#line 248 "compilador.y"
                       { (yyval.str) = strdup("SOMA"); }
-#line 1480 "compilador.tab.c"
+#line 1484 "compilador.tab.c"
     break;
 
   case 43: /* mais_menos_or: MENOS  */
-#line 245 "compilador.y"
+#line 249 "compilador.y"
                        { (yyval.str) = strdup("SUBT"); }
-#line 1486 "compilador.tab.c"
+#line 1490 "compilador.tab.c"
     break;
 
   case 44: /* mais_menos_or: OR  */
-#line 246 "compilador.y"
+#line 250 "compilador.y"
                     { (yyval.str) = strdup("DISJ"); }
-#line 1492 "compilador.tab.c"
+#line 1496 "compilador.tab.c"
     break;
 
   case 45: /* termo: termo vezes_div_and fator  */
-#line 250 "compilador.y"
+#line 254 "compilador.y"
                                   { 
          if (strcmp((yyvsp[-1].str), "CONJ") == 0){
             if ((yyvsp[-2].int_val) != pas_boolean || (yyvsp[0].int_val) != pas_boolean){
@@ -1510,50 +1514,50 @@ yyreduce:
          }
          geraCodigo(NULL, (yyvsp[-1].str));
       }
-#line 1514 "compilador.tab.c"
+#line 1518 "compilador.tab.c"
     break;
 
   case 47: /* vezes_div_and: VEZES  */
-#line 270 "compilador.y"
+#line 274 "compilador.y"
                        { (yyval.str) = strdup("MULT"); }
-#line 1520 "compilador.tab.c"
+#line 1524 "compilador.tab.c"
     break;
 
   case 48: /* vezes_div_and: DIV  */
-#line 271 "compilador.y"
+#line 275 "compilador.y"
                      { (yyval.str) = strdup("DIVI"); }
-#line 1526 "compilador.tab.c"
+#line 1530 "compilador.tab.c"
     break;
 
   case 49: /* vezes_div_and: AND  */
-#line 272 "compilador.y"
+#line 276 "compilador.y"
                      { (yyval.str) = strdup("CONJ"); }
-#line 1532 "compilador.tab.c"
+#line 1536 "compilador.tab.c"
     break;
 
   case 50: /* fator: variavel  */
-#line 276 "compilador.y"
+#line 280 "compilador.y"
                  { 
          sptr = busca(&ts, (yyvsp[0].simb)->identificador);
          (yyval.int_val) = sptr->conteudo.var.tipo;
          sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
          geraCodigo(NULL, mepa_buf);
       }
-#line 1543 "compilador.tab.c"
+#line 1547 "compilador.tab.c"
     break;
 
   case 51: /* fator: NUMERO  */
-#line 282 "compilador.y"
+#line 286 "compilador.y"
                {
          (yyval.int_val) = pas_integer;
          sprintf (mepa_buf, "CRCT %d", atoi(token));
          geraCodigo(NULL, mepa_buf);
       }
-#line 1553 "compilador.tab.c"
+#line 1557 "compilador.tab.c"
     break;
 
   case 52: /* fator: VALOR_BOOL  */
-#line 287 "compilador.y"
+#line 291 "compilador.y"
                    {
          (yyval.int_val) = pas_boolean;
          if(strcmp(token, "True") == 0)
@@ -1562,17 +1566,17 @@ yyreduce:
             sprintf (mepa_buf, "CRCT %d", 0);
          geraCodigo(NULL, mepa_buf);
       }
-#line 1566 "compilador.tab.c"
+#line 1570 "compilador.tab.c"
     break;
 
   case 53: /* fator: ABRE_PARENTESES expressao FECHA_PARENTESES  */
-#line 295 "compilador.y"
+#line 299 "compilador.y"
                                                    { (yyval.int_val) = (yyvsp[-1].int_val); }
-#line 1572 "compilador.tab.c"
+#line 1576 "compilador.tab.c"
     break;
 
   case 54: /* fator: NOT fator  */
-#line 296 "compilador.y"
+#line 300 "compilador.y"
                   {
          printf("as coisa %d %d\n", (yyvsp[0].int_val), pas_boolean);
          if ((yyvsp[0].int_val) != pas_boolean){
@@ -1580,18 +1584,19 @@ yyreduce:
             exit(1);
          }
          (yyval.int_val) = pas_boolean;
+         geraCodigo(NULL, "NEGA");
        }
-#line 1585 "compilador.tab.c"
+#line 1590 "compilador.tab.c"
     break;
 
   case 55: /* variavel: IDENT  */
-#line 308 "compilador.y"
+#line 313 "compilador.y"
                            { (yyval.simb) = busca(&ts, token); }
-#line 1591 "compilador.tab.c"
+#line 1596 "compilador.tab.c"
     break;
 
 
-#line 1595 "compilador.tab.c"
+#line 1600 "compilador.tab.c"
 
       default: break;
     }
@@ -1785,7 +1790,7 @@ yyreturn:
   return yyresult;
 }
 
-#line 310 "compilador.y"
+#line 315 "compilador.y"
 
 
 int main (int argc, char** argv) {
