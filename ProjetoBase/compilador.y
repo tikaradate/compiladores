@@ -141,7 +141,6 @@ comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
 
 comando_sem_rotulo: atribuicao 
-                  | expressao 
                   |
 ;
 
@@ -159,6 +158,7 @@ atribuicao: variavel ATRIBUICAO expressao {
 }
 ;
 
+// ========== REGRA 25 ========== //
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
                if ($1 != $3){
@@ -169,6 +169,16 @@ expressao   : expressao_simples { $$ = $1; }
             }
 ;
 
+// ========== REGRA 26 ========== //
+relacao  : IGUAL        { $$ = "CMIG"; }
+         | DIFERENTE    { $$ = "CMDG"; }
+         | MENOR        { $$ = "CMME"; }
+         | MENOR_IGUAL  { $$ = "CMEG"; }
+         | MAIOR_IGUAL  { $$ = "CMAG"; }
+         | MAIOR        { $$ = "CMMA"; }
+;
+
+// ========== REGRA 27 ========== //
 expressao_simples : expressao_simples mais_menos_or termo {
                      if (strcmp($2, "DISJ") == 0){
                         if ($1 != pas_boolean || $3 != pas_boolean){
@@ -200,6 +210,17 @@ expressao_simples : expressao_simples mais_menos_or termo {
                   } 
 ;
 
+mais_menos_vazio  : MAIS  { $$ = "MAIS"; }
+                  | MENOS { $$ = "MENOS"; }
+                  |       { $$ = "VAZIO"; }
+;
+
+mais_menos_or  : MAIS { $$ = strdup("SOMA"); }
+               | MENOS { $$ = strdup("SUBT"); } 
+               | OR { $$ = strdup("DISJ"); }
+; 
+
+// ========== REGRA 28 ========== //
 termo : termo vezes_div_and fator { 
          if (strcmp($2, "CONJ") == 0){
             if ($1 != pas_boolean || $3 != pas_boolean){
@@ -220,6 +241,12 @@ termo : termo vezes_div_and fator {
       | fator
 ;
 
+vezes_div_and  : VEZES { $$ = strdup("MULT"); }
+               | DIV { $$ = strdup("DIVI"); }
+               | AND { $$ = strdup("CONJ"); }
+;
+
+// ========== REGRA 29 ========== //
 fator : variavel { 
          sptr = busca(&ts, $1->identificador);
          $$ = sptr->conteudo.var.tipo;
@@ -239,37 +266,19 @@ fator : variavel {
             sprintf (mepa_buf, "CRCT %d", 0);
          geraCodigo(NULL, mepa_buf);
       }
-      | ABRE_PARENTESES expressao FECHA_PARENTESES
-      {
-      }
-         /* falta not fator e chamada de função */
+      | ABRE_PARENTESES expressao FECHA_PARENTESES { $$ = $2; }
+      | NOT fator {
+         printf("as coisa %d %d\n", $2, pas_boolean);
+         if ($2 != pas_boolean){
+            fprintf(stderr, "COMPILATION ERROR!!! Boolean operation with non-boolean value!\n");
+            exit(1);
+         }
+         $$ = pas_boolean;
+       }
+         /* falta chamada de função */
 ;
 
-
-
-relacao  : IGUAL        { $$ = "CMIG"; }
-         | DIFERENTE    { $$ = "CMDG"; }
-         | MENOR        { $$ = "CMME"; }
-         | MENOR_IGUAL  { $$ = "CMEG"; }
-         | MAIOR_IGUAL  { $$ = "CMAG"; }
-         | MAIOR        { $$ = "CMMA"; }
-;
-
-mais_menos_vazio  : MAIS  { $$ = "MAIS"; }
-                  | MENOS { $$ = "MENOS"; }
-                  |       { $$ = "VAZIO"; }
-;
-
-mais_menos_or  : MAIS { $$ = strdup("SOMA"); }
-               | MENOS { $$ = strdup("SUBT"); } 
-               | OR { $$ = strdup("DISJ"); }
-; 
-
-vezes_div_and  : VEZES { $$ = strdup("MULT"); }
-               | DIV { $$ = strdup("DIVI"); }
-               | AND { $$ = strdup("CONJ"); }
-;
-
+// ========== REGRA 30 ========== //
 variavel          :  IDENT { $$ = busca(&ts, token); } ;
 
 %%
