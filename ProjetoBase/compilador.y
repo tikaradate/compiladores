@@ -174,7 +174,7 @@ comando_repetitivo:  WHILE {
                         geraCodigo(NULL, mepa_buf);
                      }
                      DO 
-                     comando_sem_rotulo{
+                     comando_sem_rotulo_ou_composto {
                         sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
                         geraCodigo(NULL, mepa_buf);
 
@@ -182,6 +182,8 @@ comando_repetitivo:  WHILE {
                         geraCodigo(rot_str, "NADA");
                      }
 ;
+
+comando_sem_rotulo_ou_composto: comando_sem_rotulo | comando_composto;
 
 
 // ========== REGRA 25 ========== //
@@ -298,7 +300,6 @@ fator : variavel {
       }
       | ABRE_PARENTESES expressao FECHA_PARENTESES { $$ = $2; }
       | NOT fator {
-         printf("as coisa %d %d\n", $2, pas_boolean);
          if ($2 != pas_boolean){
             fprintf(stderr, "COMPILATION ERROR!!! Boolean operation with non-boolean value!\n");
             exit(1);
