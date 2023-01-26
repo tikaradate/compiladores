@@ -65,43 +65,46 @@ Gramática
 
    26 $@7: %empty
 
-   27 comando_repetitivo: WHILE $@6 expressao $@7 DO comando_sem_rotulo
+   27 comando_repetitivo: WHILE $@6 expressao $@7 DO comando_sem_rotulo_ou_composto
 
-   28 expressao: expressao_simples
-   29          | expressao_simples relacao expressao_simples
+   28 comando_sem_rotulo_ou_composto: comando_sem_rotulo
+   29                               | comando_composto
 
-   30 relacao: IGUAL
-   31        | DIFERENTE
-   32        | MENOR
-   33        | MENOR_IGUAL
-   34        | MAIOR_IGUAL
-   35        | MAIOR
+   30 expressao: expressao_simples
+   31          | expressao_simples relacao expressao_simples
 
-   36 expressao_simples: expressao_simples mais_menos_or termo
-   37                  | mais_menos_vazio termo
+   32 relacao: IGUAL
+   33        | DIFERENTE
+   34        | MENOR
+   35        | MENOR_IGUAL
+   36        | MAIOR_IGUAL
+   37        | MAIOR
 
-   38 mais_menos_vazio: MAIS
-   39                 | MENOS
-   40                 | %empty
+   38 expressao_simples: expressao_simples mais_menos_or termo
+   39                  | mais_menos_vazio termo
 
-   41 mais_menos_or: MAIS
-   42              | MENOS
-   43              | OR
+   40 mais_menos_vazio: MAIS
+   41                 | MENOS
+   42                 | %empty
 
-   44 termo: termo vezes_div_and fator
-   45      | fator
+   43 mais_menos_or: MAIS
+   44              | MENOS
+   45              | OR
 
-   46 vezes_div_and: VEZES
-   47              | DIV
-   48              | AND
+   46 termo: termo vezes_div_and fator
+   47      | fator
 
-   49 fator: variavel
-   50      | NUMERO
-   51      | VALOR_BOOL
-   52      | ABRE_PARENTESES expressao FECHA_PARENTESES
-   53      | NOT fator
+   48 vezes_div_and: VEZES
+   49              | DIV
+   50              | AND
 
-   54 variavel: IDENT
+   51 fator: variavel
+   52      | NUMERO
+   53      | VALOR_BOOL
+   54      | ABRE_PARENTESES expressao FECHA_PARENTESES
+   55      | NOT fator
+
+   56 variavel: IDENT
 
 
 Terminais, com as regras onde eles aparecem
@@ -124,33 +127,33 @@ Terminais, com as regras onde eles aparecem
     ELSE (271)
     WHILE (272) 27
     DO (273) 27
-    OR (274) 43
-    AND (275) 48
-    NOT (276) 53
-    DIV (277) 47
+    OR (274) 45
+    AND (275) 50
+    NOT (276) 55
+    DIV (277) 49
     ATRIBUICAO (278) 24
     PONTO_E_VIRGULA (279) 2 12 20
     DOIS_PONTOS (280) 12
     VIRGULA (281) 14 16
     PONTO (282) 2
-    ABRE_PARENTESES (283) 2 52
-    FECHA_PARENTESES (284) 2 52
+    ABRE_PARENTESES (283) 2 54
+    FECHA_PARENTESES (284) 2 54
     ABRE_COLCHETES (285)
     FECHA_COLCHETES (286)
     ABRE_CHAVES (287)
     FECHA_CHAVES (288)
-    IDENT (289) 2 14 15 16 17 54
-    MAIOR (290) 35
-    MENOR (291) 32
-    IGUAL (292) 30
-    MAIS (293) 38 41
-    MENOS (294) 39 42
-    VEZES (295) 46
-    NUMERO (296) 50
-    DIFERENTE (297) 31
-    MENOR_IGUAL (298) 33
-    MAIOR_IGUAL (299) 34
-    VALOR_BOOL (300) 51
+    IDENT (289) 2 14 15 16 17 56
+    MAIOR (290) 37
+    MENOR (291) 34
+    IGUAL (292) 32
+    MAIS (293) 40 43
+    MENOS (294) 41 44
+    VEZES (295) 48
+    NUMERO (296) 52
+    DIFERENTE (297) 33
+    MENOR_IGUAL (298) 35
+    MAIOR_IGUAL (299) 36
+    VALOR_BOOL (300) 53
     TIPO (301) 13
 
 
@@ -199,13 +202,13 @@ Não terminais com as regras onde eles aparecem
         à direita: 12 16
     comando_composto (61)
         à esquerda: 18
-        à direita: 4
+        à direita: 4 29
     comandos (62)
         à esquerda: 19 20
         à direita: 18 20
     comando_sem_rotulo (63)
         à esquerda: 21 22 23
-        à direita: 19 20 27
+        à direita: 19 20 28
     atribuicao (64)
         à esquerda: 24
         à direita: 21
@@ -218,33 +221,36 @@ Não terminais com as regras onde eles aparecem
     $@7 (67)
         à esquerda: 26
         à direita: 27
-    expressao <int_val> (68)
+    comando_sem_rotulo_ou_composto (68)
         à esquerda: 28 29
-        à direita: 24 27 52
-    relacao <str> (69)
-        à esquerda: 30 31 32 33 34 35
-        à direita: 29
-    expressao_simples <int_val> (70)
-        à esquerda: 36 37
-        à direita: 28 29 36
-    mais_menos_vazio <str> (71)
-        à esquerda: 38 39 40
-        à direita: 37
-    mais_menos_or <str> (72)
-        à esquerda: 41 42 43
-        à direita: 36
-    termo <int_val> (73)
-        à esquerda: 44 45
-        à direita: 36 37 44
-    vezes_div_and <str> (74)
-        à esquerda: 46 47 48
-        à direita: 44
-    fator <int_val> (75)
-        à esquerda: 49 50 51 52 53
-        à direita: 44 45 53
-    variavel <simb> (76)
-        à esquerda: 54
-        à direita: 24 49
+        à direita: 27
+    expressao <int_val> (69)
+        à esquerda: 30 31
+        à direita: 24 27 54
+    relacao <str> (70)
+        à esquerda: 32 33 34 35 36 37
+        à direita: 31
+    expressao_simples <int_val> (71)
+        à esquerda: 38 39
+        à direita: 30 31 38
+    mais_menos_vazio <str> (72)
+        à esquerda: 40 41 42
+        à direita: 39
+    mais_menos_or <str> (73)
+        à esquerda: 43 44 45
+        à direita: 38
+    termo <int_val> (74)
+        à esquerda: 46 47
+        à direita: 38 39 46
+    vezes_div_and <str> (75)
+        à esquerda: 48 49 50
+        à direita: 46
+    fator <int_val> (76)
+        à esquerda: 51 52 53 54 55
+        à direita: 46 47 55
+    variavel <simb> (77)
+        à esquerda: 56
+        à direita: 24 51
 
 
 Estado 0
@@ -453,7 +459,7 @@ Estado 23
 
 Estado 24
 
-   27 comando_repetitivo: WHILE • $@6 expressao $@7 DO comando_sem_rotulo
+   27 comando_repetitivo: WHILE • $@6 expressao $@7 DO comando_sem_rotulo_ou_composto
 
     $padrão  reduzir usando a regra 25 ($@6)
 
@@ -462,9 +468,9 @@ Estado 24
 
 Estado 25
 
-   54 variavel: IDENT •
+   56 variavel: IDENT •
 
-    $padrão  reduzir usando a regra 54 (variavel)
+    $padrão  reduzir usando a regra 56 (variavel)
 
 
 Estado 26
@@ -529,12 +535,12 @@ Estado 33
 
 Estado 34
 
-   27 comando_repetitivo: WHILE $@6 • expressao $@7 DO comando_sem_rotulo
+   27 comando_repetitivo: WHILE $@6 • expressao $@7 DO comando_sem_rotulo_ou_composto
 
     MAIS   deslocar, e ir ao estado 40
     MENOS  deslocar, e ir ao estado 41
 
-    $padrão  reduzir usando a regra 40 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
 
     expressao          ir ao estado 42
     expressao_simples  ir ao estado 43
@@ -570,7 +576,7 @@ Estado 37
     MAIS   deslocar, e ir ao estado 40
     MENOS  deslocar, e ir ao estado 41
 
-    $padrão  reduzir usando a regra 40 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
 
     expressao          ir ao estado 46
     expressao_simples  ir ao estado 43
@@ -595,21 +601,21 @@ Estado 39
 
 Estado 40
 
-   38 mais_menos_vazio: MAIS •
+   40 mais_menos_vazio: MAIS •
 
-    $padrão  reduzir usando a regra 38 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 40 (mais_menos_vazio)
 
 
 Estado 41
 
-   39 mais_menos_vazio: MENOS •
+   41 mais_menos_vazio: MENOS •
 
-    $padrão  reduzir usando a regra 39 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 41 (mais_menos_vazio)
 
 
 Estado 42
 
-   27 comando_repetitivo: WHILE $@6 expressao • $@7 DO comando_sem_rotulo
+   27 comando_repetitivo: WHILE $@6 expressao • $@7 DO comando_sem_rotulo_ou_composto
 
     $padrão  reduzir usando a regra 26 ($@7)
 
@@ -618,9 +624,9 @@ Estado 42
 
 Estado 43
 
-   28 expressao: expressao_simples •
-   29          | expressao_simples • relacao expressao_simples
-   36 expressao_simples: expressao_simples • mais_menos_or termo
+   30 expressao: expressao_simples •
+   31          | expressao_simples • relacao expressao_simples
+   38 expressao_simples: expressao_simples • mais_menos_or termo
 
     OR           deslocar, e ir ao estado 51
     MAIOR        deslocar, e ir ao estado 52
@@ -632,7 +638,7 @@ Estado 43
     MENOR_IGUAL  deslocar, e ir ao estado 58
     MAIOR_IGUAL  deslocar, e ir ao estado 59
 
-    $padrão  reduzir usando a regra 28 (expressao)
+    $padrão  reduzir usando a regra 30 (expressao)
 
     relacao        ir ao estado 60
     mais_menos_or  ir ao estado 61
@@ -640,7 +646,7 @@ Estado 43
 
 Estado 44
 
-   37 expressao_simples: mais_menos_vazio • termo
+   39 expressao_simples: mais_menos_vazio • termo
 
     NOT              deslocar, e ir ao estado 62
     ABRE_PARENTESES  deslocar, e ir ao estado 63
@@ -692,82 +698,82 @@ Estado 49
 
 Estado 50
 
-   27 comando_repetitivo: WHILE $@6 expressao $@7 • DO comando_sem_rotulo
+   27 comando_repetitivo: WHILE $@6 expressao $@7 • DO comando_sem_rotulo_ou_composto
 
     DO  deslocar, e ir ao estado 70
 
 
 Estado 51
 
-   43 mais_menos_or: OR •
+   45 mais_menos_or: OR •
 
-    $padrão  reduzir usando a regra 43 (mais_menos_or)
+    $padrão  reduzir usando a regra 45 (mais_menos_or)
 
 
 Estado 52
 
-   35 relacao: MAIOR •
+   37 relacao: MAIOR •
 
-    $padrão  reduzir usando a regra 35 (relacao)
+    $padrão  reduzir usando a regra 37 (relacao)
 
 
 Estado 53
 
-   32 relacao: MENOR •
-
-    $padrão  reduzir usando a regra 32 (relacao)
-
-
-Estado 54
-
-   30 relacao: IGUAL •
-
-    $padrão  reduzir usando a regra 30 (relacao)
-
-
-Estado 55
-
-   41 mais_menos_or: MAIS •
-
-    $padrão  reduzir usando a regra 41 (mais_menos_or)
-
-
-Estado 56
-
-   42 mais_menos_or: MENOS •
-
-    $padrão  reduzir usando a regra 42 (mais_menos_or)
-
-
-Estado 57
-
-   31 relacao: DIFERENTE •
-
-    $padrão  reduzir usando a regra 31 (relacao)
-
-
-Estado 58
-
-   33 relacao: MENOR_IGUAL •
-
-    $padrão  reduzir usando a regra 33 (relacao)
-
-
-Estado 59
-
-   34 relacao: MAIOR_IGUAL •
+   34 relacao: MENOR •
 
     $padrão  reduzir usando a regra 34 (relacao)
 
 
+Estado 54
+
+   32 relacao: IGUAL •
+
+    $padrão  reduzir usando a regra 32 (relacao)
+
+
+Estado 55
+
+   43 mais_menos_or: MAIS •
+
+    $padrão  reduzir usando a regra 43 (mais_menos_or)
+
+
+Estado 56
+
+   44 mais_menos_or: MENOS •
+
+    $padrão  reduzir usando a regra 44 (mais_menos_or)
+
+
+Estado 57
+
+   33 relacao: DIFERENTE •
+
+    $padrão  reduzir usando a regra 33 (relacao)
+
+
+Estado 58
+
+   35 relacao: MENOR_IGUAL •
+
+    $padrão  reduzir usando a regra 35 (relacao)
+
+
+Estado 59
+
+   36 relacao: MAIOR_IGUAL •
+
+    $padrão  reduzir usando a regra 36 (relacao)
+
+
 Estado 60
 
-   29 expressao: expressao_simples relacao • expressao_simples
+   31 expressao: expressao_simples relacao • expressao_simples
 
     MAIS   deslocar, e ir ao estado 40
     MENOS  deslocar, e ir ao estado 41
 
-    $padrão  reduzir usando a regra 40 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
 
     expressao_simples  ir ao estado 71
     mais_menos_vazio   ir ao estado 44
@@ -775,7 +781,7 @@ Estado 60
 
 Estado 61
 
-   36 expressao_simples: expressao_simples mais_menos_or • termo
+   38 expressao_simples: expressao_simples mais_menos_or • termo
 
     NOT              deslocar, e ir ao estado 62
     ABRE_PARENTESES  deslocar, e ir ao estado 63
@@ -790,7 +796,7 @@ Estado 61
 
 Estado 62
 
-   53 fator: NOT • fator
+   55 fator: NOT • fator
 
     NOT              deslocar, e ir ao estado 62
     ABRE_PARENTESES  deslocar, e ir ao estado 63
@@ -804,12 +810,12 @@ Estado 62
 
 Estado 63
 
-   52 fator: ABRE_PARENTESES • expressao FECHA_PARENTESES
+   54 fator: ABRE_PARENTESES • expressao FECHA_PARENTESES
 
     MAIS   deslocar, e ir ao estado 40
     MENOS  deslocar, e ir ao estado 41
 
-    $padrão  reduzir usando a regra 40 (mais_menos_vazio)
+    $padrão  reduzir usando a regra 42 (mais_menos_vazio)
 
     expressao          ir ao estado 74
     expressao_simples  ir ao estado 43
@@ -818,44 +824,44 @@ Estado 63
 
 Estado 64
 
-   50 fator: NUMERO •
+   52 fator: NUMERO •
 
-    $padrão  reduzir usando a regra 50 (fator)
+    $padrão  reduzir usando a regra 52 (fator)
 
 
 Estado 65
 
-   51 fator: VALOR_BOOL •
+   53 fator: VALOR_BOOL •
 
-    $padrão  reduzir usando a regra 51 (fator)
+    $padrão  reduzir usando a regra 53 (fator)
 
 
 Estado 66
 
-   37 expressao_simples: mais_menos_vazio termo •
-   44 termo: termo • vezes_div_and fator
+   39 expressao_simples: mais_menos_vazio termo •
+   46 termo: termo • vezes_div_and fator
 
     AND    deslocar, e ir ao estado 75
     DIV    deslocar, e ir ao estado 76
     VEZES  deslocar, e ir ao estado 77
 
-    $padrão  reduzir usando a regra 37 (expressao_simples)
+    $padrão  reduzir usando a regra 39 (expressao_simples)
 
     vezes_div_and  ir ao estado 78
 
 
 Estado 67
 
-   45 termo: fator •
+   47 termo: fator •
 
-    $padrão  reduzir usando a regra 45 (termo)
+    $padrão  reduzir usando a regra 47 (termo)
 
 
 Estado 68
 
-   49 fator: variavel •
+   51 fator: variavel •
 
-    $padrão  reduzir usando a regra 49 (fator)
+    $padrão  reduzir usando a regra 51 (fator)
 
 
 Estado 69
@@ -867,85 +873,88 @@ Estado 69
 
 Estado 70
 
-   27 comando_repetitivo: WHILE $@6 expressao $@7 DO • comando_sem_rotulo
+   27 comando_repetitivo: WHILE $@6 expressao $@7 DO • comando_sem_rotulo_ou_composto
 
-    WHILE  deslocar, e ir ao estado 24
-    IDENT  deslocar, e ir ao estado 25
+    T_BEGIN  deslocar, e ir ao estado 19
+    WHILE    deslocar, e ir ao estado 24
+    IDENT    deslocar, e ir ao estado 25
 
     $padrão  reduzir usando a regra 23 (comando_sem_rotulo)
 
-    comando_sem_rotulo  ir ao estado 80
-    atribuicao          ir ao estado 28
-    comando_repetitivo  ir ao estado 29
-    variavel            ir ao estado 30
+    comando_composto                ir ao estado 80
+    comando_sem_rotulo              ir ao estado 81
+    atribuicao                      ir ao estado 28
+    comando_repetitivo              ir ao estado 29
+    comando_sem_rotulo_ou_composto  ir ao estado 82
+    variavel                        ir ao estado 30
 
 
 Estado 71
 
-   29 expressao: expressao_simples relacao expressao_simples •
-   36 expressao_simples: expressao_simples • mais_menos_or termo
+   31 expressao: expressao_simples relacao expressao_simples •
+   38 expressao_simples: expressao_simples • mais_menos_or termo
 
     OR     deslocar, e ir ao estado 51
     MAIS   deslocar, e ir ao estado 55
     MENOS  deslocar, e ir ao estado 56
 
-    $padrão  reduzir usando a regra 29 (expressao)
+    $padrão  reduzir usando a regra 31 (expressao)
 
     mais_menos_or  ir ao estado 61
 
 
 Estado 72
 
-   36 expressao_simples: expressao_simples mais_menos_or termo •
-   44 termo: termo • vezes_div_and fator
+   38 expressao_simples: expressao_simples mais_menos_or termo •
+   46 termo: termo • vezes_div_and fator
 
     AND    deslocar, e ir ao estado 75
     DIV    deslocar, e ir ao estado 76
     VEZES  deslocar, e ir ao estado 77
 
-    $padrão  reduzir usando a regra 36 (expressao_simples)
+    $padrão  reduzir usando a regra 38 (expressao_simples)
 
     vezes_div_and  ir ao estado 78
 
 
 Estado 73
 
-   53 fator: NOT fator •
+   55 fator: NOT fator •
 
-    $padrão  reduzir usando a regra 53 (fator)
+    $padrão  reduzir usando a regra 55 (fator)
 
 
 Estado 74
 
-   52 fator: ABRE_PARENTESES expressao • FECHA_PARENTESES
+   54 fator: ABRE_PARENTESES expressao • FECHA_PARENTESES
 
-    FECHA_PARENTESES  deslocar, e ir ao estado 81
+    FECHA_PARENTESES  deslocar, e ir ao estado 83
 
 
 Estado 75
 
-   48 vezes_div_and: AND •
+   50 vezes_div_and: AND •
 
-    $padrão  reduzir usando a regra 48 (vezes_div_and)
+    $padrão  reduzir usando a regra 50 (vezes_div_and)
 
 
 Estado 76
 
-   47 vezes_div_and: DIV •
+   49 vezes_div_and: DIV •
 
-    $padrão  reduzir usando a regra 47 (vezes_div_and)
+    $padrão  reduzir usando a regra 49 (vezes_div_and)
 
 
 Estado 77
 
-   46 vezes_div_and: VEZES •
+   48 vezes_div_and: VEZES •
 
-    $padrão  reduzir usando a regra 46 (vezes_div_and)
+    $padrão  reduzir usando a regra 48 (vezes_div_and)
 
 
 Estado 78
 
-   44 termo: termo vezes_div_and • fator
+   46 termo: termo vezes_div_and • fator
 
     NOT              deslocar, e ir ao estado 62
     ABRE_PARENTESES  deslocar, e ir ao estado 63
@@ -953,7 +962,7 @@ Estado 78
     NUMERO           deslocar, e ir ao estado 64
     VALOR_BOOL       deslocar, e ir ao estado 65
 
-    fator     ir ao estado 82
+    fator     ir ao estado 84
     variavel  ir ao estado 68
 
 
@@ -966,20 +975,34 @@ Estado 79
 
 Estado 80
 
-   27 comando_repetitivo: WHILE $@6 expressao $@7 DO comando_sem_rotulo •
+   29 comando_sem_rotulo_ou_composto: comando_composto •
 
-    $padrão  reduzir usando a regra 27 (comando_repetitivo)
+    $padrão  reduzir usando a regra 29 (comando_sem_rotulo_ou_composto)
 
 
 Estado 81
 
-   52 fator: ABRE_PARENTESES expressao FECHA_PARENTESES •
+   28 comando_sem_rotulo_ou_composto: comando_sem_rotulo •
 
-    $padrão  reduzir usando a regra 52 (fator)
+    $padrão  reduzir usando a regra 28 (comando_sem_rotulo_ou_composto)
 
 
 Estado 82
 
-   44 termo: termo vezes_div_and fator •
+   27 comando_repetitivo: WHILE $@6 expressao $@7 DO comando_sem_rotulo_ou_composto •
 
-    $padrão  reduzir usando a regra 44 (termo)
+    $padrão  reduzir usando a regra 27 (comando_repetitivo)
+
+
+Estado 83
+
+   54 fator: ABRE_PARENTESES expressao FECHA_PARENTESES •
+
+    $padrão  reduzir usando a regra 54 (fator)
+
+
+Estado 84
+
+   46 termo: termo vezes_div_and fator •
+
+    $padrão  reduzir usando a regra 46 (termo)

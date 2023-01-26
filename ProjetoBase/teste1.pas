@@ -1,9 +1,13 @@
 program exemplo75 (input, output);
-var m,n :  boolean;
-    a,b :  integer;
+var a, b: integer;
 
 begin
-    m:= -2 > 3;
-    n:= not m;
+    a:= 0;
+    b:= 0;
+    while a < 2 do
+    begin
+        while b < 2 do
+            b:= b+1;
+        a:= a+1;
+    end
 end.
-
