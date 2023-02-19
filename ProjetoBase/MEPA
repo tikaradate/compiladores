@@ -1,23 +1,41 @@
      INPP
-     AMEM 2
-     CRCT 1
+     AMEM 1
+     CRCT 0
      ARMZ 0 0
      CRVL 0 0
-     CRCT 1
-     CMEG
-     DSVF R00
-     CRVL 0 0
      CRCT 0
+     CMIG
+     DSVF R00
+     CRCT 1
+     ARMZ 0 0
+     DSVS R01
+R00: NADA 
+     CRVL 0 0
+     CRCT 1
      CMIG
      DSVF R02
      CRCT 2
      ARMZ 0 0
      DSVS R03
 R02: NADA 
+     CRVL 0 0
+     CRCT 2
+     CMIG
+     DSVF R04
      CRCT 3
      ARMZ 0 0
+     DSVS R05
+R04: NADA 
+     CRVL 0 0
+     CRCT 3
+     CMIG
+     DSVF R06
+     CRCT 4
+     ARMZ 0 0
+     DSVS R07
+R06: NADA 
+R07: NADA 
+R05: NADA 
 R03: NADA 
-     DSVS R01
-R00: NADA 
 R01: NADA 
      PARA
