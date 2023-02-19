@@ -2,18 +2,12 @@ program exemplo75 (input, output);
 var a, b: integer;
 
 begin
-    a:= 0;
+    a:= 1;
 
-    if a = 0 then
-    begin
-        a := 1;
-    end;
-
-    while a < 2 do
-    begin
-        b:= 0;
-        while b < 2 do
-            b:= b+1;
-        a:= a+1;
-    end;
+    if a <= 1 then
+        if a = 0 then
+            a:= 2
+        else
+            a:= 3;
+    
 end.

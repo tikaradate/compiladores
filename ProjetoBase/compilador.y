@@ -66,6 +66,9 @@ int rot_w;
 %type <int_val> termo;
 %type <int_val> tipo;
 
+%nonassoc "lower_then_else"
+%nonassoc ELSE
+
 %%
 
 // ========== REGRA 01 ========== //
@@ -204,7 +207,7 @@ comando_condicional: IF expressao {
                         geraCodigo(NULL, mepa_buf); // falta testar expressão
 
                         pilha_int_empilhar(&pilha_rotulos, rot_num);
-                        rot_num += 3;
+                        rot_num += 2;
                      }  
                      THEN
                      comando_sem_rotulo_ou_composto {
@@ -214,11 +217,17 @@ comando_condicional: IF expressao {
                         sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
                         geraCodigo(rot_str, "NADA");
 
+                     } 
+                     else_ou_nada{
                         sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos)+1);
                         geraCodigo(rot_str, "NADA");
 
                         pilha_int_desempilhar(&pilha_rotulos);
                      }
+;
+
+else_ou_nada: ELSE comando_sem_rotulo_ou_composto 
+            | %prec "lower_then_else"
 ;
 
 // ========== REGRA 25 ========== //
