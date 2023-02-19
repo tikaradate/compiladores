@@ -9,8 +9,8 @@
 
 $DEPURA=1
 
-compilador: lex.yy.c compilador.tab.c compilador.o tabela_simb.o simbolo.o
-	gcc lex.yy.c compilador.tab.c compilador.o tabela_simb.o simbolo.o -o compilador -lfl -L /usr/lib/x86_64-linux-gnu -ly -lc -g
+compilador: lex.yy.c compilador.tab.c compilador.o tabela_simb.o simbolo.o pilha_int.o
+	gcc lex.yy.c compilador.tab.c compilador.o tabela_simb.o simbolo.o pilha_int.o -o compilador -lfl -L /usr/lib/x86_64-linux-gnu -ly -lc -g
 
 lex.yy.c: compilador.l compilador.h
 	flex compilador.l
@@ -23,6 +23,9 @@ tabela_simb.o: tabela_simb/tabela_simb.c tabela_simb/tabela_simb.h
 
 simbolo.o: tabela_simb/simbolo.c tabela_simb/simbolo.h
 	gcc -c tabela_simb/simbolo.c -o simbolo.o
+
+pilha_int.o: pilha/pilha_int.c pilha/pilha_int.h
+	gcc -c pilha/pilha_int.c -o pilha_int.o
 
 compilador.o : compilador.h compiladorF.c
 	gcc -c compiladorF.c -o compilador.o
