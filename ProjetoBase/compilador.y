@@ -148,6 +148,7 @@ comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 // ========== REGRA 18 ========== //
 comando_sem_rotulo: atribuicao 
                   | comando_repetitivo
+                  | comando_condicional
                   |
 ;
 
@@ -175,7 +176,7 @@ comando_repetitivo:  WHILE {
                      }
                      expressao {
                         sprintf(mepa_buf, "DSVF R%02d", pilha_int_topo(&pilha_rotulos)+1);
-                        geraCodigo(NULL, mepa_buf);
+                        geraCodigo(NULL, mepa_buf); // falta testar expressão
                      }
                      DO 
                      comando_sem_rotulo_ou_composto {
@@ -191,6 +192,34 @@ comando_repetitivo:  WHILE {
 
 comando_sem_rotulo_ou_composto: comando_sem_rotulo | comando_composto;
 
+// ========== REGRA 22 ========== //
+
+comando_condicional: IF expressao {
+                        if ($2 != pas_boolean){
+                           fprintf(stderr, "COMPILATION ERROR!!!\n If expression is not boolean!\n");
+                           exit(1);
+                        }
+
+                        sprintf(mepa_buf, "DSVF R%02d", rot_num);
+                        geraCodigo(NULL, mepa_buf); // falta testar expressão
+
+                        pilha_int_empilhar(&pilha_rotulos, rot_num);
+                        rot_num += 3;
+                     }  
+                     THEN
+                     comando_sem_rotulo_ou_composto {
+                        sprintf(mepa_buf, "DSVS R%02d", pilha_int_topo(&pilha_rotulos)+1);
+                        geraCodigo(NULL, mepa_buf);
+
+                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
+                        geraCodigo(rot_str, "NADA");
+
+                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos)+1);
+                        geraCodigo(rot_str, "NADA");
+
+                        pilha_int_desempilhar(&pilha_rotulos);
+                     }
+;
 
 // ========== REGRA 25 ========== //
 expressao   : expressao_simples { $$ = $1; } 
