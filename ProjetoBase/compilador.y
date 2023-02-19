@@ -13,6 +13,7 @@
 #include "compilador.h"
 #include "tabela_simb/tabela_simb.h"
 #include "tabela_simb/simbolo.h"
+#include "pilha/pilha_int.h"
 
 int num_vars;
 int nivel_lex;
@@ -22,6 +23,7 @@ int qt_tipo_atual;
 char mepa_buf[128];
 struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
+struct pilha_int pilha_rotulos;
 union cat_conteudo ti;
 
 int str2type(const char *str){
@@ -165,21 +167,25 @@ atribuicao: variavel ATRIBUICAO expressao {
 
 // ========== REGRA 23 ========== //
 comando_repetitivo:  WHILE {
-                        sprintf(rot_str, "R%02d", rot_num++); 
+                        pilha_int_empilhar(&pilha_rotulos, rot_num);
+                         
+                        sprintf(rot_str, "R%02d", rot_num);
                         geraCodigo(rot_str, "NADA");
-                        rot_w = rot_num++;
+                        rot_num += 2;
                      }
                      expressao {
-                        sprintf(mepa_buf, "DSVF R%02d", rot_w);
+                        sprintf(mepa_buf, "DSVF R%02d", pilha_int_topo(&pilha_rotulos)+1);
                         geraCodigo(NULL, mepa_buf);
                      }
                      DO 
                      comando_sem_rotulo_ou_composto {
-                        sprintf(mepa_buf, "DSVS R%02d", rot_w-1);
+                        sprintf(mepa_buf, "DSVS R%02d", pilha_int_topo(&pilha_rotulos));
                         geraCodigo(NULL, mepa_buf);
 
-                        sprintf(rot_str, "R%02d", rot_w);
+                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos)+1);
                         geraCodigo(rot_str, "NADA");
+
+                        pilha_int_desempilhar(&pilha_rotulos);
                      }
 ;
 
@@ -335,9 +341,12 @@ int main (int argc, char** argv) {
  *  Inicia a Tabela de S�mbolos
  * ------------------------------------------------------------------- */
    inicializa(&ts);
+   pilha_int_inicializar(&pilha_rotulos);
 
    yyin=fp;
    yyparse();
+
+   pilha_int_destruir(&pilha_rotulos);
 
    return 0;
 }

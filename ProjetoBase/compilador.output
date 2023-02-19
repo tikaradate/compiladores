@@ -20,25 +20,25 @@ Gramática
 
     0 $accept: programa $end
 
-    1 $@1: %empty
+    1 $@1: ε
 
     2 programa: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco PONTO
 
-    3 $@2: %empty
+    3 $@2: ε
 
     4 bloco: parte_declara_vars $@2 comando_composto
 
-    5 $@3: %empty
+    5 $@3: ε
 
     6 parte_declara_vars: $@3 VAR declara_vars
-    7                   | %empty
+    7                   | ε
 
     8 declara_vars: declara_vars declara_var
     9             | declara_var
 
-   10 $@4: %empty
+   10 $@4: ε
 
-   11 $@5: %empty
+   11 $@5: ε
 
    12 declara_var: $@4 lista_id_var DOIS_PONTOS tipo $@5 PONTO_E_VIRGULA
 
@@ -57,13 +57,13 @@ Gramática
 
    21 comando_sem_rotulo: atribuicao
    22                   | comando_repetitivo
-   23                   | %empty
+   23                   | ε
 
    24 atribuicao: variavel ATRIBUICAO expressao
 
-   25 $@6: %empty
+   25 $@6: ε
 
-   26 $@7: %empty
+   26 $@7: ε
 
    27 comando_repetitivo: WHILE $@6 expressao $@7 DO comando_sem_rotulo_ou_composto
 
@@ -85,7 +85,7 @@ Gramática
 
    40 mais_menos_vazio: MAIS
    41                 | MENOS
-   42                 | %empty
+   42                 | ε
 
    43 mais_menos_or: MAIS
    44              | MENOS
