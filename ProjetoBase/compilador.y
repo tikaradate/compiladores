@@ -193,15 +193,19 @@ comando_sem_rotulo: atribuicao_proc
                   |
 ;
 
-atribuicao_proc: atribuicao ;
+atribuicao_proc: variavel a_continua;
+
+a_continua: ATRIBUICAO atribuicao |
+            procedimento;
+
 // ========== REGRA 19 ========== //
-atribuicao: variavel ATRIBUICAO expressao {
-   if($1->conteudo.var.tipo != $3){
+atribuicao: expressao {
+   if(sptr->conteudo.var.tipo != $1){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
       exit(1);
    }
    /* busca posição da variavel */
-   sptr = busca( &ts, $1->identificador );
+   sptr = busca( &ts, sptr->identificador );
 
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
@@ -209,19 +213,17 @@ atribuicao: variavel ATRIBUICAO expressao {
 ;
 
 // ========== REGRA 19 ========== //
-procedimento: IDENT
+procedimento:
               {
-               sptr = busca(&ts, token);
-               geraCodigo(NULL, "eta fio");
+               // sptr = busca(&ts, token);
                if(!sptr){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
                }
                sprintf(mepa_buf, "CHPR R%02d", sptr->conteudo.proc.rotulo);
-               geraCodigo(NULL, "CHPR");
+               geraCodigo(NULL, mepa_buf);
               }
               PONTO_E_VIRGULA;
-
 
 // ========== REGRA 23 ========== //
 comando_repetitivo:  WHILE {
@@ -409,7 +411,7 @@ fator : variavel {
 ;
 
 // ========== REGRA 30 ========== //
-variavel          :  IDENT { $$ = busca(&ts, token); } ;
+variavel          :  IDENT { sptr = busca(&ts, token); } ;
 
 %%
 
