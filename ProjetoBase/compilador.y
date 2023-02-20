@@ -91,11 +91,25 @@ bloco       :
                nivel_lex++;
               }
 
+              {
+               sprintf(mepa_buf, "DSVS R%02d", rot_num);
+               geraCodigo(NULL, mepa_buf);
+               pilha_int_empilhar(&pilha_rotulos, rot_num);
+               rot_num++;
+              }
+              parte_declara_subrotinas
+
+              {
+               sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
+               geraCodigo(rot_str, "NADA");
+               pilha_int_desempilhar(&pilha_rotulos);
+              }
               comando_composto
 
               {
                nivel_lex--;
               }
+
               ;
 
 // ========== REGRA 08 ========== //
@@ -140,6 +154,30 @@ lista_id_var: lista_id_var VIRGULA IDENT {
             }
 ;
 
+// ========== REGRA 11 ========== //
+parte_declara_subrotinas: parte_declara_subrotinas declara_proc | ;
+
+// ========== REGRA 12 ========== //
+declara_proc: PROCEDURE 
+              IDENT 
+              {
+               sprintf(rot_str, "R%02d", rot_num);
+               sprintf(mepa_buf, "ENPR %d", nivel_lex);
+               geraCodigo(rot_str, mepa_buf);
+               ti.proc.rotulo = rot_num;
+               ti.proc.qtd_parametros = 0;
+               ti.proc.lista = NULL;
+               s = cria_simbolo(token, procedimento, nivel_lex, ti);
+               push(&ts, s);
+               rot_num++; // para o desvio de procedures dentro dessa procedure
+              }
+              PONTO_E_VIRGULA 
+              bloco 
+              {
+               sprintf(mepa_buf, "RTPR %d,%d", nivel_lex, 0);
+               geraCodigo(NULL, mepa_buf);
+              }
+;
 
 // ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
@@ -149,25 +187,43 @@ comando_composto: T_BEGIN comandos T_END
 comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
 // ========== REGRA 18 ========== //
-comando_sem_rotulo: atribuicao 
+comando_sem_rotulo: atribuicao_proc
                   | comando_repetitivo
                   | comando_condicional
                   |
 ;
 
+atribuicao_proc: variavel a_continua;
+
+a_continua: ATRIBUICAO atribuicao |
+            procedimento;
+
 // ========== REGRA 19 ========== //
-atribuicao: variavel ATRIBUICAO expressao {
-   if($1->conteudo.var.tipo != $3){
+atribuicao: expressao {
+   if(sptr->conteudo.var.tipo != $1){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
       exit(1);
    }
    /* busca posição da variavel */
-   sptr = busca( &ts, $1->identificador );
+   sptr = busca( &ts, sptr->identificador );
 
    sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
 }
 ;
+
+// ========== REGRA 19 ========== //
+procedimento:
+              {
+               // sptr = busca(&ts, token);
+               if(!sptr){
+                  fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
+                  exit(1);
+               }
+               sprintf(mepa_buf, "CHPR R%02d", sptr->conteudo.proc.rotulo);
+               geraCodigo(NULL, mepa_buf);
+              }
+              PONTO_E_VIRGULA;
 
 // ========== REGRA 23 ========== //
 comando_repetitivo:  WHILE {
@@ -355,7 +411,7 @@ fator : variavel {
 ;
 
 // ========== REGRA 30 ========== //
-variavel          :  IDENT { $$ = busca(&ts, token); } ;
+variavel          :  IDENT { sptr = busca(&ts, token); } ;
 
 %%
 

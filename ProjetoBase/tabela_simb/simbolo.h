@@ -27,7 +27,7 @@ struct parametro{
 };
 
 struct procedimento{
-    char *rotulo;
+    int rotulo;
     int qtd_parametros;
     struct parametro *lista;
 };
