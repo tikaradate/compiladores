@@ -1,12 +1,13 @@
 program exemplo75 (input, output);
-var a: integer;
+var a, b: integer;
     m: boolean;
-    procedure p(a: integer);
+    procedure p(c: integer; d: integer);
     var b: integer;
     begin
         b := 1;
     end
 begin
     a := 1;
-    p;
+    b := 2;
+    p(a, b);
 end.

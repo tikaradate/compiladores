@@ -216,6 +216,7 @@ comando_sem_rotulo: atribuicao_proc
 atribuicao_proc: variavel a_continua;
 
 a_continua: ATRIBUICAO atribuicao |
+            procedimento_sem_parametro |
             procedimento;
 
 // ========== REGRA 19 ========== //
@@ -234,9 +235,24 @@ atribuicao: expressao {
 
 // ========== REGRA 19 ========== //
 procedimento:
+            {
+               if(!sptr){
+                  fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
+                  exit(1);
+               }
+               sprintf(proc_name, "CHPR R%02d", sptr->conteudo.proc.rotulo);
+            }
+              ABRE_PARENTESES 
+              lista_expressoes
+              FECHA_PARENTESES
               {
-               // sptr = busca(&ts, token);
-               // printf(">>>>>>>token: %s\n", sptr->identificador);
+               geraCodigo(NULL, proc_name);
+               }
+              PONTO_E_VIRGULA
+;
+
+procedimento_sem_parametro:
+              {
                if(!sptr){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
@@ -308,6 +324,8 @@ else_ou_nada: ELSE comando_sem_rotulo_ou_composto
 ;
 
 // ========== REGRA 25 ========== //
+lista_expressoes:  expressao VIRGULA lista_expressoes | expressao;
+
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
                if ($1 != $3){
@@ -401,7 +419,10 @@ vezes_div_and  : VEZES { $$ = strdup("MULT"); }
 
 // ========== REGRA 29 ========== //
 fator : variavel { 
-         sptr = busca(&ts, $1->identificador);
+         if(!sptr){
+            printf("Variável não encontrada\n");
+            exit(1);
+         }
          $$ = sptr->conteudo.var.tipo;
          sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
          geraCodigo(NULL, mepa_buf);
