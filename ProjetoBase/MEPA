@@ -5,15 +5,3 @@ R01: ENPR 1
      AMEM 1
      DSVS R02
 R02: NADA 
-     CRCT 1
-     ARMZ 1 0
-     RTPR 1,0
-R00: NADA 
-     CRCT 1
-     ARMZ 0 0
-     CRCT 2
-     ARMZ 1 0
-     CRVL 0 0
-     CRVL 1 0
-     CHPR R01
-     PARA

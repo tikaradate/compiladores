@@ -2,9 +2,10 @@ program exemplo75 (input, output);
 var a, b: integer;
     m: boolean;
     procedure p(c: integer; d: integer);
-    var b: integer;
+    var k: integer;
     begin
-        b := 1;
+        k := c + d;
+        print(k);
     end
 begin
     a := 1;

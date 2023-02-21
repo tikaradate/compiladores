@@ -17,14 +17,17 @@
 
 int num_vars;
 int num_params;
+int curr_params;
 int nivel_lex;
 int pos_var;
 int qt_tipo_atual;
+int referencia;
 
 char mepa_buf[128], proc_name[128];
 struct tabela_de_simbolos *ts;
-struct simbolo s, *sptr;
+struct simbolo s, *sptr, curr_proc;
 struct pilha_int pilha_rotulos;
+struct parametro lista_parametros[128];
 union cat_conteudo ti;
 
 int str2type(const char *str){
@@ -137,8 +140,22 @@ tipo        : TIPO { $$ = str2type(token); }
 ;
 
 // ========== REGRA 10 ========== //
-lista_idents: lista_idents VIRGULA IDENT
-            | IDENT
+lista_idents: lista_idents 
+              {
+               lista_parametros[num_params].deslocamento = num_params;
+               lista_parametros[num_params].deslocamento = referencia? parametro_ref : parametro_copia;
+               num_params++;
+               curr_params++;
+              }
+              VIRGULA 
+              IDENT
+            | IDENT 
+              {
+               lista_parametros[num_params].deslocamento = num_params;
+               lista_parametros[num_params].deslocamento = referencia? parametro_ref : parametro_copia;
+               num_params++;
+               curr_params;
+              }
 ;
 
 lista_id_var: lista_id_var VIRGULA IDENT {
@@ -170,9 +187,10 @@ declara_proc: PROCEDURE
                sprintf(rot_str, "R%02d", rot_num);
                sprintf(mepa_buf, "ENPR %d", nivel_lex);
                geraCodigo(rot_str, mepa_buf);
+               
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
-               ti.proc.lista = NULL;
+               memcpy(ti.proc.lista, lista_parametros, sizeof(struct parametro)*num_params); 
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
                rot_num++; // para o desvio de procedures dentro dessa procedure
@@ -196,9 +214,20 @@ parametros_formais: ABRE_PARENTESES
 parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros
 ;
 
-secao_parametros : var_ou_nada lista_idents DOIS_PONTOS tipo;
+secao_parametros : var_ou_nada
+                   {curr_params = 0;}
+                   lista_idents 
+                   {referencia = 1;}
+                   DOIS_PONTOS 
+                   tipo
+                   {
+                     for(int i = 0; i < curr_params; ++i){
+                        lista_parametros[i].tipo = $6;
+                     }
+                   }                   
+;
 
-var_ou_nada: VAR | ;
+var_ou_nada: VAR {referencia = 1;} | ;
 // ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
 ;
@@ -235,20 +264,28 @@ atribuicao: expressao {
 
 // ========== REGRA 19 ========== //
 procedimento:
-            {
-               if(!sptr){
+             {
+              if(!sptr){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
-               }
-               sprintf(proc_name, "CHPR R%02d", sptr->conteudo.proc.rotulo);
-            }
-              ABRE_PARENTESES 
-              lista_expressoes
-              FECHA_PARENTESES
-              {
-               geraCodigo(NULL, proc_name);
-               }
-              PONTO_E_VIRGULA
+              }
+              memcpy(&curr_proc, sptr, sizeof(struct simbolo));
+              sprintf(proc_name, "CHPR R%02d", sptr->conteudo.proc.rotulo);
+             } 
+             ABRE_PARENTESES 
+             {
+               curr_params = 0;
+             }
+             lista_expressoes
+             FECHA_PARENTESES
+             {
+              if(curr_params != curr_proc.conteudo.proc.qtd_parametros){
+                  fprintf(stderr, "COMPILATION ERROR!!!\n Wrong number of parameters.\n"); 
+                  exit(1);
+              }
+              geraCodigo(NULL, proc_name);
+             }
+             PONTO_E_VIRGULA
 ;
 
 procedimento_sem_parametro:
@@ -324,7 +361,7 @@ else_ou_nada: ELSE comando_sem_rotulo_ou_composto
 ;
 
 // ========== REGRA 25 ========== //
-lista_expressoes:  expressao VIRGULA lista_expressoes | expressao;
+lista_expressoes:  expressao {curr_params++;} VIRGULA lista_expressoes | expressao {curr_params++;};
 
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{

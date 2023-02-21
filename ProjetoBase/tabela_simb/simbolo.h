@@ -14,6 +14,12 @@ enum tipo_variavel{
     undefined_type
 };
 
+enum tipo_passagem{
+    parametro_copia,
+    parametro_ref
+};
+
+
 /* Três tipos de símbolos */
 struct variavel{
     int tipo;
@@ -29,7 +35,7 @@ struct parametro{
 struct procedimento{
     int rotulo;
     int qtd_parametros;
-    struct parametro *lista;
+    struct parametro lista[128];
 };
 /*------------------------*/
 
