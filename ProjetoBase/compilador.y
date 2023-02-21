@@ -16,11 +16,12 @@
 #include "pilha/pilha_int.h"
 
 int num_vars;
+int num_params;
 int nivel_lex;
 int pos_var;
 int qt_tipo_atual;
 
-char mepa_buf[128];
+char mepa_buf[128], proc_name[128];
 struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr;
 struct pilha_int pilha_rotulos;
@@ -159,18 +160,24 @@ parte_declara_subrotinas: parte_declara_subrotinas declara_proc | ;
 
 // ========== REGRA 12 ========== //
 declara_proc: PROCEDURE 
-              IDENT 
+              IDENT
+              {
+               strcpy(proc_name, token);
+               num_params = 0;
+              }
+              parametros_formais_ou_nada
               {
                sprintf(rot_str, "R%02d", rot_num);
                sprintf(mepa_buf, "ENPR %d", nivel_lex);
                geraCodigo(rot_str, mepa_buf);
                ti.proc.rotulo = rot_num;
-               ti.proc.qtd_parametros = 0;
+               ti.proc.qtd_parametros = num_params;
                ti.proc.lista = NULL;
-               s = cria_simbolo(token, procedimento, nivel_lex, ti);
+               s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
                rot_num++; // para o desvio de procedures dentro dessa procedure
               }
+
               PONTO_E_VIRGULA 
               bloco 
               {
@@ -178,7 +185,20 @@ declara_proc: PROCEDURE
                geraCodigo(NULL, mepa_buf);
               }
 ;
+// ========== REGRA 14 ========== //
+parametros_formais_ou_nada: parametros_formais | ;
 
+parametros_formais: ABRE_PARENTESES
+                     parametros
+                    FECHA_PARENTESES
+;
+
+parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros
+;
+
+secao_parametros : var_ou_nada lista_idents DOIS_PONTOS tipo;
+
+var_ou_nada: VAR | ;
 // ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
 ;
@@ -216,6 +236,7 @@ atribuicao: expressao {
 procedimento:
               {
                // sptr = busca(&ts, token);
+               // printf(">>>>>>>token: %s\n", sptr->identificador);
                if(!sptr){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
@@ -411,7 +432,7 @@ fator : variavel {
 ;
 
 // ========== REGRA 30 ========== //
-variavel          :  IDENT { sptr = busca(&ts, token); } ;
+variavel          :  IDENT { sptr = busca(&ts, token);} ;
 
 %%
 

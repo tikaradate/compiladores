@@ -1,5 +1,5 @@
      INPP
-     AMEM 1
+     AMEM 2
      DSVS R00
 R01: ENPR 1 
      AMEM 1
@@ -9,7 +9,7 @@ R02: NADA
      ARMZ 1 0
      RTPR 1,0
 R00: NADA 
-     CRCT 0
+     CRCT 1
      ARMZ 0 0
      CHPR R01
      PARA

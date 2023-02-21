@@ -1,11 +1,12 @@
 program exemplo75 (input, output);
 var a: integer;
-    procedure p;
+    m: boolean;
+    procedure p(a: integer);
     var b: integer;
     begin
         b := 1;
     end
 begin
-    a := 0;
+    a := 1;
     p;
 end.
