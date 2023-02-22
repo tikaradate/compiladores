@@ -16,17 +16,18 @@
 #include "pilha/pilha_int.h"
 
 int num_vars;
-int num_params;
-int curr_params;
+int num_params; // número de parâmetros do procedimento atual
+int curr_section_params; // número de parâmetros da seção atual => seção é aquela separada por ';'
 int nivel_lex;
 int pos_var;
 int qt_tipo_atual;
-int referencia;
-int dentro_proc;
+int referencia; // indica se a seção atual é por referência, se não for, é por cópia
+int dentro_proc; /* indica se estamos dentro de um procedimento, mas acho que não precisa por conta da forma das structs
+                     usada na linha ~470 */
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts;
-struct simbolo s, *sptr, curr_proc;
+struct simbolo s, *sptr, curr_proc, lista_simbolos[128];
 struct pilha_int pilha_rotulos;
 struct parametro lista_parametros[128];
 union cat_conteudo ti;
@@ -142,27 +143,18 @@ tipo        : TIPO { $$ = str2type(token); }
 
 // ========== REGRA 10 ========== //
 lista_idents: lista_idents 
-              {
-               // lista_parametros[num_params].deslocamento = num_params;
-               lista_parametros[num_params].passagem = referencia? parametro_ref : parametro_copia;
-              }
               VIRGULA 
-              IDENT
+              ident_params
+            | ident_params
+;
+ident_params: IDENT 
               {
                strcpy(idents[num_params], token);
-               num_params++;
-               curr_params++;
-              }
-            | IDENT 
-              {
-               strcpy(idents[num_params], token);
-               // lista_parametros[num_params].deslocamento = num_params;
                lista_parametros[num_params].passagem = referencia? parametro_ref : parametro_copia;
                num_params++;
-               curr_params++;
+               curr_section_params++;
               }
 ;
-
 lista_id_var: lista_id_var VIRGULA IDENT {
                ti.var.deslocamento = num_vars;
                s = cria_simbolo(token, variavel, nivel_lex, ti); 
@@ -193,6 +185,12 @@ declara_proc: PROCEDURE
                sprintf(mepa_buf, "ENPR %d", nivel_lex);
                geraCodigo(rot_str, mepa_buf);
                
+               // atribui o deslocamento correto e coloca na pilha os símbolos
+               for(int i = num_params-1; i >= 0; --i){
+                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                  push(&ts, lista_simbolos[i]);
+               }
+
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
                memcpy(ti.proc.lista, lista_parametros, sizeof(struct parametro)*num_params); 
@@ -222,18 +220,18 @@ parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros
 ;
 
 secao_parametros : var_ou_nada
-                   {curr_params = 0;}
+                   {curr_section_params = 0;}
                    lista_idents 
                    {referencia = 0;}
                    DOIS_PONTOS 
                    tipo
                    {
-                     for(int i = num_params-curr_params; i < num_params+curr_params; ++i){
+                     // atribui tipo para os parâmetros dessa seção e coloca numa lista de símbolos a serem empilhados
+                     for(int i = num_params-curr_section_params; i < num_params+curr_section_params; ++i){
                         ti.param = lista_parametros[i];
-                        s = cria_simbolo(idents[i], parametro, nivel_lex, ti);
-                        push(&ts, s);
+                        ti.param.tipo = $6;
+                        lista_simbolos[i] = cria_simbolo(idents[i], parametro, nivel_lex, ti);
                      }
-                     atribui_tipo(&ts, parametro, $6, curr_params);
                    }                   
 ;
 
@@ -284,12 +282,12 @@ procedimento:
              } 
              ABRE_PARENTESES 
              {
-               curr_params = 0;
+               curr_section_params = 0;
              }
              lista_expressoes
              FECHA_PARENTESES
              {
-              if(curr_params != curr_proc.conteudo.proc.qtd_parametros){
+              if(curr_section_params != curr_proc.conteudo.proc.qtd_parametros){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Wrong number of parameters.\n"); 
                   exit(1);
               }
@@ -371,7 +369,7 @@ else_ou_nada: ELSE comando_sem_rotulo_ou_composto
 ;
 
 // ========== REGRA 25 ========== //
-lista_expressoes:  expressao {curr_params++;} VIRGULA lista_expressoes | expressao {curr_params++;};
+lista_expressoes:  expressao {curr_section_params++;} VIRGULA lista_expressoes | expressao {curr_section_params++;};
 
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{

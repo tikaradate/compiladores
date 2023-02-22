@@ -4,7 +4,7 @@ var a, b: integer;
     procedure p(c: integer; d, e: integer);
     var k: integer;
     begin
-        k := c + d;
+        k := c + d + e;
         e := c + k;
     end
 begin
