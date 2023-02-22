@@ -22,8 +22,9 @@ int nivel_lex;
 int pos_var;
 int qt_tipo_atual;
 int referencia;
+int dentro_proc;
 
-char mepa_buf[128], proc_name[128];
+char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts;
 struct simbolo s, *sptr, curr_proc;
 struct pilha_int pilha_rotulos;
@@ -142,19 +143,23 @@ tipo        : TIPO { $$ = str2type(token); }
 // ========== REGRA 10 ========== //
 lista_idents: lista_idents 
               {
-               lista_parametros[num_params].deslocamento = num_params;
-               lista_parametros[num_params].deslocamento = referencia? parametro_ref : parametro_copia;
-               num_params++;
-               curr_params++;
+               // lista_parametros[num_params].deslocamento = num_params;
+               lista_parametros[num_params].passagem = referencia? parametro_ref : parametro_copia;
               }
               VIRGULA 
               IDENT
+              {
+               strcpy(idents[num_params], token);
+               num_params++;
+               curr_params++;
+              }
             | IDENT 
               {
-               lista_parametros[num_params].deslocamento = num_params;
-               lista_parametros[num_params].deslocamento = referencia? parametro_ref : parametro_copia;
+               strcpy(idents[num_params], token);
+               // lista_parametros[num_params].deslocamento = num_params;
+               lista_parametros[num_params].passagem = referencia? parametro_ref : parametro_copia;
                num_params++;
-               curr_params;
+               curr_params++;
               }
 ;
 
@@ -194,6 +199,7 @@ declara_proc: PROCEDURE
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
                rot_num++; // para o desvio de procedures dentro dessa procedure
+               dentro_proc = 1;
               }
 
               PONTO_E_VIRGULA 
@@ -201,6 +207,7 @@ declara_proc: PROCEDURE
               {
                sprintf(mepa_buf, "RTPR %d,%d", nivel_lex, 0);
                geraCodigo(NULL, mepa_buf);
+               dentro_proc = 0;
               }
 ;
 // ========== REGRA 14 ========== //
@@ -217,13 +224,16 @@ parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros
 secao_parametros : var_ou_nada
                    {curr_params = 0;}
                    lista_idents 
-                   {referencia = 1;}
+                   {referencia = 0;}
                    DOIS_PONTOS 
                    tipo
                    {
-                     for(int i = 0; i < curr_params; ++i){
-                        lista_parametros[i].tipo = $6;
+                     for(int i = num_params-curr_params; i < num_params+curr_params; ++i){
+                        ti.param = lista_parametros[i];
+                        s = cria_simbolo(idents[i], parametro, nivel_lex, ti);
+                        push(&ts, s);
                      }
+                     atribui_tipo(&ts, parametro, $6, curr_params);
                    }                   
 ;
 
@@ -461,7 +471,11 @@ fator : variavel {
             exit(1);
          }
          $$ = sptr->conteudo.var.tipo;
-         sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+         if(!dentro_proc)
+            sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+         else
+            sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+
          geraCodigo(NULL, mepa_buf);
       } 
       | NUMERO {
