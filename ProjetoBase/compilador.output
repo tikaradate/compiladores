@@ -16,27 +16,27 @@ Gramática
 
     0 $accept: programa $end
 
-    1 $@1: ε
+    1 $@1: %empty
 
     2 programa: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco PONTO
 
-    3 $@2: ε
+    3 $@2: %empty
 
-    4 $@3: ε
+    4 $@3: %empty
 
     5 bloco: parte_declara_vars $@2 parte_declara_subrotinas $@3 comando_composto
 
-    6 $@4: ε
+    6 $@4: %empty
 
     7 parte_declara_vars: $@4 VAR declara_vars
-    8                   | ε
+    8                   | %empty
 
     9 declara_vars: declara_vars declara_var
    10             | declara_var
 
-   11 $@5: ε
+   11 $@5: %empty
 
-   12 $@6: ε
+   12 $@6: %empty
 
    13 declara_var: $@5 lista_id_var DOIS_PONTOS tipo $@6 PONTO_E_VIRGULA
 
@@ -51,30 +51,30 @@ Gramática
    19             | IDENT
 
    20 parte_declara_subrotinas: parte_declara_subrotinas declara_proc
-   21                         | ε
+   21                         | %empty
 
-   22 $@7: ε
+   22 $@7: %empty
 
-   23 $@8: ε
+   23 $@8: %empty
 
    24 declara_proc: PROCEDURE IDENT $@7 parametros_formais_ou_nada $@8 PONTO_E_VIRGULA bloco
 
    25 parametros_formais_ou_nada: parametros_formais
-   26                           | ε
+   26                           | %empty
 
    27 parametros_formais: ABRE_PARENTESES parametros FECHA_PARENTESES
 
    28 parametros: parametros PONTO_E_VIRGULA secao_parametros
    29           | secao_parametros
 
-   30 $@9: ε
+   30 $@9: %empty
 
-   31 $@10: ε
+   31 $@10: %empty
 
    32 secao_parametros: var_ou_nada $@9 lista_idents $@10 DOIS_PONTOS tipo
 
    33 var_ou_nada: VAR
-   34            | ε
+   34            | %empty
 
    35 comando_composto: T_BEGIN comandos T_END
 
@@ -84,11 +84,11 @@ Gramática
    38 comando_sem_rotulo: atribuicao_proc
    39                   | comando_repetitivo
    40                   | comando_condicional
-   41                   | ε
+   41                   | %empty
 
    42 atribuicao_proc: variavel a_continua
 
-   43 $@11: ε
+   43 $@11: %empty
 
    44 a_continua: ATRIBUICAO $@11 atribuicao
    45           | procedimento_sem_parametro
@@ -96,37 +96,37 @@ Gramática
 
    47 atribuicao: expressao
 
-   48 $@12: ε
+   48 $@12: %empty
 
-   49 $@13: ε
+   49 $@13: %empty
 
-   50 $@14: ε
+   50 $@14: %empty
 
    51 procedimento: $@12 ABRE_PARENTESES $@13 lista_expressoes FECHA_PARENTESES $@14 PONTO_E_VIRGULA
 
-   52 $@15: ε
+   52 $@15: %empty
 
    53 procedimento_sem_parametro: $@15 PONTO_E_VIRGULA
 
-   54 $@16: ε
+   54 $@16: %empty
 
-   55 $@17: ε
+   55 $@17: %empty
 
    56 comando_repetitivo: WHILE $@16 expressao $@17 DO comando_sem_rotulo_ou_composto
 
    57 comando_sem_rotulo_ou_composto: comando_sem_rotulo
    58                               | comando_composto
 
-   59 $@18: ε
+   59 $@18: %empty
 
-   60 $@19: ε
+   60 $@19: %empty
 
    61 comando_condicional: IF expressao $@18 THEN comando_sem_rotulo_ou_composto $@19 else_ou_nada
 
    62 else_ou_nada: ELSE comando_sem_rotulo_ou_composto
-   63             | ε
+   63             | %empty
 
-   64 $@20: ε
+   64 $@20: %empty
 
    65 lista_expressoes: expressao $@20 VIRGULA lista_expressoes
    66                 | expressao
@@ -146,7 +146,7 @@ Gramática
 
    77 mais_menos_vazio: MAIS
    78                 | MENOS
-   79                 | ε
+   79                 | %empty
 
    80 mais_menos_or: MAIS
    81              | MENOS

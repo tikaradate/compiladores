@@ -5,16 +5,18 @@ R01: ENPR 1
      AMEM 1
      DSVS R02
 R02: NADA 
-     CRVL 1 -6
+     CRVI 1 -6
      CRVL 1 -5
      SOMA
      CRVL 1 -4
      SOMA
      ARMZ 1 0
-     CRVL 1 -6
+     CRVI 1 -6
      CRVL 1 0
      SOMA
      ARMZ 1 -4
+     CRCT 3
+     ARMI 1 -6
      DMEM 1
      RTPR 1 0
 R00: NADA 

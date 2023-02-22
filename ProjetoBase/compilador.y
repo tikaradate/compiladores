@@ -27,7 +27,7 @@ int dentro_proc; /* indica se estamos dentro de um procedimento, mas acho que n�
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts;
-struct simbolo s, *sptr, *sptr_var_atribuida, curr_proc, lista_simbolos[128];
+struct simbolo s, *sptr, *sptr_var_proc, curr_proc, lista_simbolos[128];
 struct pilha_int pilha_rotulos, pilha_amem;
 struct parametro lista_parametros[128];
 union cat_conteudo ti;
@@ -232,6 +232,8 @@ secao_parametros : var_ou_nada
                    DOIS_PONTOS 
                    tipo
                    {
+                     int b = $6;
+                     printf("O TIPO É %d\n", b);
                      // atribui tipo para os parâmetros dessa seção e coloca numa lista de símbolos a serem empilhados
                      for(int i = num_params-curr_section_params; i < num_params+curr_section_params; ++i){
                         ti.param = lista_parametros[i];
@@ -241,7 +243,8 @@ secao_parametros : var_ou_nada
                    }                   
 ;
 
-var_ou_nada: VAR {referencia = 1;} | ;
+var_ou_nada: VAR {referencia = 1;} | {referencia = 0;} ;
+
 // ========== REGRA 16 ========== //
 comando_composto: T_BEGIN comandos T_END
 ;
@@ -256,22 +259,32 @@ comando_sem_rotulo: atribuicao_proc
                   |
 ;
 
-atribuicao_proc: variavel a_continua;
+atribuicao_proc: variavel {sptr_var_proc = sptr;} a_continua;
 
-a_continua: ATRIBUICAO {sptr_var_atribuida = sptr;} atribuicao |
+a_continua: ATRIBUICAO atribuicao |
             procedimento_sem_parametro |
             procedimento;
 
 // ========== REGRA 19 ========== //
 atribuicao: expressao {
-   if(sptr_var_atribuida->conteudo.var.tipo != $1){
+   if(sptr_var_proc->conteudo.var.tipo != $1){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
       exit(1);
    }
    /* busca posição da variavel */
-   // sptr = busca( &ts, sptr->identificador );
-
-   sprintf(mepa_buf, "ARMZ %d %d", sptr_var_atribuida->nivel, sptr_var_atribuida->conteudo.var.deslocamento);
+   
+   // pode ser indireto
+   if (sptr_var_proc->categoria == variavel)
+      sprintf(mepa_buf, "ARMZ %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+   else if (sptr_var_proc->categoria == parametro){
+      if (sptr_var_proc->conteudo.param.passagem == parametro_copia)
+         sprintf(mepa_buf, "ARMZ %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+      else
+         sprintf(mepa_buf, "ARMI %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+   } else {
+      fprintf(stderr, "Procedimento tratado como variável!\n");
+      exit(1);
+   }
    geraCodigo(NULL, mepa_buf);
 }
 ;
@@ -279,12 +292,12 @@ atribuicao: expressao {
 // ========== REGRA 19 ========== //
 procedimento:
              {
-              if(!sptr){
+              if(!sptr_var_proc){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
               }
-              memcpy(&curr_proc, sptr, sizeof(struct simbolo));
-              sprintf(proc_name, "CHPR R%02d %d", sptr->conteudo.proc.rotulo, nivel_lex);
+              memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
+              sprintf(proc_name, "CHPR R%02d %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
              } 
              ABRE_PARENTESES 
              {
@@ -375,7 +388,18 @@ else_ou_nada: ELSE comando_sem_rotulo_ou_composto
 ;
 
 // ========== REGRA 25 ========== //
-lista_expressoes:  expressao {curr_section_params++;} VIRGULA lista_expressoes | expressao {curr_section_params++;};
+lista_expressoes:  expressao 
+                  {  
+                     if (sptr_var_proc->conteudo.proc.lista[curr_section_params]);
+                     curr_section_params++;
+                  } 
+                  VIRGULA 
+                  lista_expressoes 
+                  | expressao 
+                  {
+                     sptr_var_proc->conteudo.proc.lista[curr_section_params];
+                     curr_section_params++;
+                  };
 
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
@@ -475,10 +499,19 @@ fator : variavel {
             exit(1);
          }
          $$ = sptr->conteudo.var.tipo;
-         if(!dentro_proc)
+         // pode ser indireto
+
+         if (sptr->categoria == variavel)
             sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
-         else
-            sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+         else if (sptr->categoria == parametro){
+            if (sptr->conteudo.param.passagem == parametro_copia)
+               sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+            else
+               sprintf(mepa_buf, "CRVI %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+         } else {
+            fprintf(stderr, "Procedimento tratado como variável!!\n");
+            exit(1);
+         }
 
          geraCodigo(NULL, mepa_buf);
       } 
