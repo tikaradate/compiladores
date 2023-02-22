@@ -27,8 +27,8 @@ int dentro_proc; /* indica se estamos dentro de um procedimento, mas acho que n�
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts;
-struct simbolo s, *sptr, curr_proc, lista_simbolos[128];
-struct pilha_int pilha_rotulos;
+struct simbolo s, *sptr, *sptr_var_atribuida, curr_proc, lista_simbolos[128];
+struct pilha_int pilha_rotulos, pilha_amem;
 struct parametro lista_parametros[128];
 union cat_conteudo ti;
 
@@ -93,19 +93,21 @@ programa    :{
 // ========== REGRA 02 ========== //
 bloco       :
               parte_declara_vars
-              {
-               nivel_lex++;
-              }
 
               {
                sprintf(mepa_buf, "DSVS R%02d", rot_num);
                geraCodigo(NULL, mepa_buf);
                pilha_int_empilhar(&pilha_rotulos, rot_num);
                rot_num++;
+
+               nivel_lex++;
               }
+              
               parte_declara_subrotinas
 
               {
+               nivel_lex--;
+
                sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
                geraCodigo(rot_str, "NADA");
                pilha_int_desempilhar(&pilha_rotulos);
@@ -113,7 +115,9 @@ bloco       :
               comando_composto
 
               {
-               nivel_lex--;
+               sprintf(mepa_buf, "DMEM %d", pilha_int_topo(&pilha_amem));
+               geraCodigo(NULL, mepa_buf);
+               pilha_int_desempilhar(&pilha_amem);
               }
 
               ;
@@ -122,6 +126,8 @@ bloco       :
 parte_declara_vars: { num_vars = 0; } VAR declara_vars { 
                sprintf(mepa_buf, "AMEM %d", num_vars);
                geraCodigo(NULL, mepa_buf);
+
+               pilha_int_empilhar(&pilha_amem, num_vars);
                }
             |
 ;
@@ -203,7 +209,7 @@ declara_proc: PROCEDURE
               PONTO_E_VIRGULA 
               bloco 
               {
-               sprintf(mepa_buf, "RTPR %d,%d", nivel_lex, 0);
+               sprintf(mepa_buf, "RTPR %d %d", nivel_lex, 0);
                geraCodigo(NULL, mepa_buf);
                dentro_proc = 0;
               }
@@ -252,20 +258,20 @@ comando_sem_rotulo: atribuicao_proc
 
 atribuicao_proc: variavel a_continua;
 
-a_continua: ATRIBUICAO atribuicao |
+a_continua: ATRIBUICAO {sptr_var_atribuida = sptr;} atribuicao |
             procedimento_sem_parametro |
             procedimento;
 
 // ========== REGRA 19 ========== //
 atribuicao: expressao {
-   if(sptr->conteudo.var.tipo != $1){
+   if(sptr_var_atribuida->conteudo.var.tipo != $1){
       fprintf(stderr, "COMPILATION ERROR!!!\n Variable type differs from expression type.\n"); 
       exit(1);
    }
    /* busca posição da variavel */
-   sptr = busca( &ts, sptr->identificador );
+   // sptr = busca( &ts, sptr->identificador );
 
-   sprintf(mepa_buf, "ARMZ %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+   sprintf(mepa_buf, "ARMZ %d %d", sptr_var_atribuida->nivel, sptr_var_atribuida->conteudo.var.deslocamento);
    geraCodigo(NULL, mepa_buf);
 }
 ;
@@ -278,7 +284,7 @@ procedimento:
                   exit(1);
               }
               memcpy(&curr_proc, sptr, sizeof(struct simbolo));
-              sprintf(proc_name, "CHPR R%02d", sptr->conteudo.proc.rotulo);
+              sprintf(proc_name, "CHPR R%02d %d", sptr->conteudo.proc.rotulo, nivel_lex);
              } 
              ABRE_PARENTESES 
              {
@@ -302,7 +308,7 @@ procedimento_sem_parametro:
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
                }
-               sprintf(mepa_buf, "CHPR R%02d", sptr->conteudo.proc.rotulo);
+               sprintf(mepa_buf, "CHPR R%02d %d", sptr->conteudo.proc.rotulo, nivel_lex);
                geraCodigo(NULL, mepa_buf);
               }
               PONTO_E_VIRGULA;
