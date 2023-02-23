@@ -18,7 +18,7 @@ struct simbolo cria_simbolo(char *ident, int cat, int niv, union cat_conteudo co
         s.conteudo.param = conteudo.param;
         break;
     case procedimento:
-        s.conteudo.param = conteudo.param;
+        s.conteudo.proc = conteudo.proc;
         break;
     }
     return s;

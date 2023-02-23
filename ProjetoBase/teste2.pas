@@ -1,12 +1,8 @@
 program exemplo75 (input, output);
-var a, b: integer;
-    m: boolean;
-    procedure p;
-    var k: integer;
+var a: integer;
+    procedure soma(i: integer; var n: integer);
     begin
-        k := 1+1;
+        i:= 0;
     end
-begin
-
-    p;
+begin 
 end.
