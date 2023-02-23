@@ -291,6 +291,19 @@ div      { simbolo = simb_div;
           return MAIOR_IGUAL;
  }
 
+read { simbolo = simb_read;
+        strncpy(token, yytext, TAM_TOKEN);
+        IMPRIME(" read ");
+        return READ;
+    }
+
+
+write { simbolo = simb_write;
+        strncpy(token, yytext, TAM_TOKEN);
+        IMPRIME(" write ");
+        return WRITE;
+    }
+
 {valor_bool} { simbolo = simb_valor_bool;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME(" valor bool ");

@@ -29,7 +29,7 @@ int dentro_chamada_proc; // indica se está dentro de uma chamada de procediment
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts, *pilha_atribuicao;
 struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
-struct pilha_int pilha_rotulos, pilha_amem;
+struct pilha_int pilha_rotulos, pilha_amem, pilha_params;
 struct parametro lista_parametros[128];
 union cat_conteudo ti;
 
@@ -54,7 +54,7 @@ int rot_w;
 %token ABRE_CHAVES FECHA_CHAVES
 %token IDENT MAIOR MENOR IGUAL MAIS MENOS
 %token VEZES NUMERO DIFERENTE MENOR_IGUAL
-%token MAIOR_IGUAL VALOR_BOOL TIPO
+%token MAIOR_IGUAL VALOR_BOOL TIPO READ WRITE
 
 %union{
    char * str;  // define o tipo str
@@ -211,21 +211,19 @@ declara_proc: PROCEDURE
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
                rot_num++; // para o desvio de procedures dentro dessa procedure
+               pilha_int_empilhar(&pilha_amem, num_params);
                // dentro_proc = 1;
               }
 
               PONTO_E_VIRGULA 
               bloco 
               {
-               sprintf(mepa_buf, "RTPR %d %d", nivel_lex, 0);
+
+               sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
+               pilha_int_desempilhar(&pilha_amem);
                geraCodigo(NULL, mepa_buf);
-
-               // Tira funcao e parametros da tabela
-               s = pop(&ts);
-               remove_n(&ts, s.conteudo.proc.qtd_parametros);
-
-               // dentro_proc = 0;
               }
+              PONTO_E_VIRGULA
 ;
 // ========== REGRA 14 ========== //
 parametros_formais_ou_nada: parametros_formais | ;
@@ -264,9 +262,35 @@ comandos: comando_sem_rotulo | comandos PONTO_E_VIRGULA comando_sem_rotulo;
 
 // ========== REGRA 18 ========== //
 comando_sem_rotulo: atribuicao_proc
-                  | comando_repetitivo
+                  | comando_repetitivo 
                   | comando_condicional
+                  | escrita
+                  | leitura
                   |
+;
+
+leitura : READ ABRE_PARENTESES leitura_itens FECHA_PARENTESES;
+
+leitura_itens: leitura_itens VIRGULA item_leitura | item_leitura
+;
+
+item_leitura: IDENT
+               {
+                  geraCodigo(NULL, "LEIT");
+                  sptr = busca(&ts, token);
+                  if(!sptr || sptr->categoria == procedimento){
+                     fprintf(stderr, "COMPILATION ERROR!!!\n Wrong use of read()\n"); 
+                     exit(1);
+                  }
+                  sprintf(mepa_buf, "ARMZ %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+                  geraCodigo(NULL, mepa_buf);
+               }
+
+;
+
+escrita : WRITE ABRE_PARENTESES escreve_itens FECHA_PARENTESES;
+
+escreve_itens: escreve_itens VIRGULA expressao {geraCodigo(NULL, "IMPR");}| expressao {geraCodigo(NULL, "IMPR");};
 ;
 
 atribuicao_proc: variavel {sptr_var_proc = sptr;} a_continua;
@@ -285,12 +309,12 @@ atribuicao: expressao {
    
    // pode ser indireto
    if (sptr_var_proc->categoria == variavel)
-      sprintf(mepa_buf, "ARMZ %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+      sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
    else if (sptr_var_proc->categoria == parametro){
       if (sptr_var_proc->conteudo.param.passagem == parametro_copia)
-         sprintf(mepa_buf, "ARMZ %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+         sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
       else
-         sprintf(mepa_buf, "ARMI %d %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+         sprintf(mepa_buf, "ARMI %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
    } else {
       fprintf(stderr, "Procedimento tratado como variável!\n");
       exit(1);
@@ -307,7 +331,7 @@ procedimento:
                   exit(1);
               }
               memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
-              sprintf(proc_name, "CHPR R%02d %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
+              sprintf(proc_name, "CHPR R%02d, %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
              } 
              ABRE_PARENTESES 
              {
@@ -324,7 +348,6 @@ procedimento:
                }
                geraCodigo(NULL, proc_name);
              }
-             PONTO_E_VIRGULA
 ;
 
 procedimento_sem_parametro:
@@ -333,10 +356,9 @@ procedimento_sem_parametro:
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
                }
-               sprintf(mepa_buf, "CHPR R%02d %d", sptr->conteudo.proc.rotulo, nivel_lex);
+               sprintf(mepa_buf, "CHPR R%02d, %d", sptr->conteudo.proc.rotulo, nivel_lex);
                geraCodigo(NULL, mepa_buf);
               }
-              PONTO_E_VIRGULA;
 
 // ========== REGRA 23 ========== //
 comando_repetitivo:  WHILE {
@@ -400,7 +422,8 @@ else_ou_nada: ELSE comando_sem_rotulo_ou_composto
 ;
 
 // ========== REGRA 25 ========== //
-lista_expressoes:  expressao 
+
+lista_expressoes:  expressao
                   {  
                      curr_section_params++;
                   } 
@@ -520,24 +543,29 @@ fator : variavel {
                   exit(1);
                }
                if (sptr_var_proc->conteudo.proc.lista[curr_section_params].passagem == parametro_ref){
-                  sprintf(mepa_buf, "CREN %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+                  sprintf(mepa_buf, "CREN %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
                }
                else if (sptr_var_proc->conteudo.proc.lista[curr_section_params].passagem == parametro_copia){
-                  sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+                  sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
                }else {
                   fprintf(stderr, "INTERNAL ERROR: parametro não é nem copia nem referencia\n");
                   exit(1);
                }
             } else {
-               sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+               sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
             }
 
          }
          else if (sptr->categoria == parametro){
             if (sptr->conteudo.param.passagem == parametro_copia)
-               sprintf(mepa_buf, "CRVL %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
-            else
-               sprintf(mepa_buf, "CRVI %d %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+               sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+            else {
+               if(sptr_var_proc->conteudo.proc.lista[curr_section_params].passagem == parametro_ref){
+                  sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+               } else {
+                  sprintf(mepa_buf, "CRVI %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+               }
+            }
          } else {
             fprintf(stderr, "Procedimento tratado como variável!!\n");
             exit(1);
