@@ -4,7 +4,8 @@
 enum tipo_simbolo{
     variavel,
     parametro,
-    procedimento
+    procedimento,
+    funcao
 };
 
 enum tipo_variavel{
@@ -37,6 +38,7 @@ struct procedimento{
     int qtd_parametros;
     struct parametro lista[128];
 };
+
 /*------------------------*/
 
 struct simbolo{

@@ -1,44 +1,54 @@
      INPP
-     AMEM 3
+     AMEM 2
      DSVS R00
 R01: ENPR 1 
      AMEM 1
      DSVS R02
 R02: NADA 
-     CRVL 1, -6
-     CRVL 1, -5
-     SOMA
-     CRVL 1, -4
-     SOMA
-     ARMZ 1, 0
-     CRVI 1, -6
-     CRVL 1, 0
-     SOMA
-     ARMI 1, 2
-     CRCT 3
-     ARMI 1, 2
-     CRVL 1, -6
-     CRVL 1, -5
-     CRVL 1, -4
-     CHPR R01, 1
-     DMEM 1
-     RTPR 1, 3
-R00: NADA 
-     CRCT 1
-     ARMZ 0, 0
      CRCT 2
+     CRVL 1, -4
+     MULT
+     ARMZ 1, 1
+     CRCT 2
+     CRVL 1, -4
+     MULT
+     ARMZ 1, 0
+     CRVL 1, 0
+     CRCT 1
+     SOMA
+     ARMZ 0, 0
+     DMEM 1
+     RTPR 1, 1
+R00: NADA 
+     CRCT 3
+     ARMZ 0, 0
+     CRCT 4
      ARMZ 0, 1
+     CRVL 0, 1
+     CHPR R01, 0
      CRVL 0, 0
      IMPR
-     CREN 0, 0
-     CREN 0, 1
-     CREN 0, 1
+     CRVL 0, 1
+     IMPR
+     CRVL 0, 0
      CHPR R01, 0
-     LEIT
-     ARMZ 0, 0
-     LEIT
-     ARMZ 0, 1
-     LEIT
-     ARMZ 0, 1
-     DMEM 3
+     CRVL 0, 0
+     IMPR
+     CRVL 0, 1
+     IMPR
+     CRVL 0, 1
+     CRVL 0, 0
+     SOMA
+     CHPR R01, 0
+     CRVL 0, 0
+     IMPR
+     CRVL 0, 1
+     IMPR
+     CRCT 7
+     CHPR R01, 0
+     CRVL 0, 0
+     IMPR
+     CRVL 0, 1
+     IMPR
+     DMEM 2
      PARA

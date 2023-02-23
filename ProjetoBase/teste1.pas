@@ -1,18 +1,18 @@
-program exemplo75 (input, output);
-var a, b: integer;
-    m: boolean;
-    function p(var c: integer; var d, e: integer):integer;
-    var k: integer;
-    begin
-        k := c + d + e;
-        e := c + k;
-        c := 3;
-        p(c, d, e);
-    end;
+program exemplo3 (input, output);
+var z, t :  integer;
+   procedure g(t : integer);
+   var x :  integer;
+   begin
+      t:=2*t;
+      x:=2*t;
+      z:=x+1
+   end;
 begin
-    a := 1;
-    b := 2;
-    write(a);
-    p(a, b, b);
-    read(a, b, b);
+   z:=3;
+   t:=4;
+   g(t); write (z,t);
+   g(z); write (z,t);
+   g(t+z); write (z,t);
+   g(7); write (z,t)
 end.
+   

@@ -1,5 +1,5 @@
-#ifndef __PILHA__
-#define __PILHA__
+#ifndef __PILHA_SIMB_PTR__
+#define __PILHA_SIMB_PTR__
 
 #define PILHA_TAM_INCREMENTO 1024
 #define PILHA_MAX_TAM_STRING 32
