@@ -211,13 +211,15 @@ declara_proc: PROCEDURE
                // for(int i = 0; i < num_params; ++i){
                //    printf("proc.lista[%d] tem tipo %d e passado por %d \n", i, ti.proc.lista[i].tipo, ti.proc.lista[i].passagem);
                // }
+               printf("nome: %s nivel: %d desloca: %d\n",proc_name, nivel_lex, ti.var.deslocamento);
+
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
 
                // atribui o deslocamento correto e coloca na pilha os símbolos
                for(int i = num_params-1; i >= 0; --i){
                   lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
-                  // printf("Parametro %s tem deslocamento %d\n", lista_simbolos[i].identificador, lista_simbolos[i].conteudo.param.deslocamento);
+                  printf(">>>>>>>>> Parametro %s tem deslocamento %d\n", lista_simbolos[i].identificador, lista_simbolos[i].conteudo.param.deslocamento);
                   push(&ts, lista_simbolos[i]);
                }
                rot_num++; // para o desvio de procedures dentro dessa procedure
@@ -232,7 +234,6 @@ declara_proc: PROCEDURE
                remove_n(&ts, pilha_int_topo(&pilha_amem));
                sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
                pilha_int_desempilhar(&pilha_amem);
-
                remove_n(&ts, pilha_int_topo(&pilha_procs));
                pilha_int_desempilhar(&pilha_procs);
                geraCodigo(NULL, mepa_buf);
@@ -394,9 +395,9 @@ atribuicao: expressao {
       sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
    else if (sptr_var_proc->categoria == parametro){
       if (sptr_var_proc->conteudo.param.passagem == parametro_copia)
-         sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+         sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.param.deslocamento);
       else
-         sprintf(mepa_buf, "ARMI %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
+         sprintf(mepa_buf, "ARMI %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.param.deslocamento);
    } else if (sptr_var_proc->categoria == funcao){
          sprintf(mepa_buf, "ARMZ %d, %d", sptr_var_proc->nivel, sptr_var_proc->conteudo.var.deslocamento);
    } else {
@@ -631,8 +632,10 @@ procedimento_ou_nada: procedimento {
                      };
 
 fator : IDENT 
-         { 
+         {
+            sptr = busca(&ts, token);
             pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, busca(&ts, token));
+
          } procedimento_ou_nada { 
 
          if(!sptr){
@@ -662,8 +665,10 @@ fator : IDENT
                   fprintf(stderr, "INTERNAL ERROR: parametro não é nem copia nem referencia\n");
                   exit(1);
                }
-            } else {
+            } else if (sptr_var_proc && sptr_var_proc->categoria != funcao){
                sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+            } else {
+               flag = 1;
             }
 
          }
