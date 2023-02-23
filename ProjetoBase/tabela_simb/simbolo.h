@@ -43,13 +43,13 @@ struct simbolo{
     char *identificador;
     int categoria;
     int nivel;
-    union cat_conteudo{
+    struct cat_conteudo{
         struct variavel var;
         struct parametro param;
         struct procedimento proc;
     } conteudo;
 };
 
-struct simbolo cria_simbolo(char *ident, int cat, int niv, union cat_conteudo tipo);
+struct simbolo cria_simbolo(char *ident, int cat, int niv, struct cat_conteudo tipo);
 
 #endif

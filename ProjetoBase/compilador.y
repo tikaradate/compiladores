@@ -25,13 +25,14 @@ int referencia; // indica se a seção atual é por referência, se não for, é
 //int dentro_proc; /* indica se estamos dentro de um procedimento, mas acho que não precisa por conta da forma das structs
 //                     usada na linha ~470 */
 int dentro_chamada_proc; // indica se está dentro de uma chamada de procedimento
+int nr_procs_for_curr_proc;
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts, *pilha_atribuicao;
 struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
-struct pilha_int pilha_rotulos, pilha_amem;
+struct pilha_int pilha_rotulos, pilha_amem, pilha_procs;
 struct parametro lista_parametros[128];
-union cat_conteudo ti;
+struct cat_conteudo ti;
 
 int str2type(const char *str){
    if (!strcmp(str, "integer")) return pas_integer;
@@ -103,11 +104,13 @@ bloco       :
                rot_num++;
 
                nivel_lex++;
+               nr_procs_for_curr_proc = 0;
               }
-              
+            
               parte_declara_subrotinas
 
               {
+               pilha_int_empilhar(&pilha_procs, nr_procs_for_curr_proc);
                nivel_lex--;
 
                sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
@@ -179,7 +182,10 @@ lista_id_var: lista_id_var VIRGULA IDENT {
 ;
 
 // ========== REGRA 11 ========== //
-parte_declara_subrotinas: parte_declara_subrotinas declara_proc | ;
+parte_declara_subrotinas: parte_declara_subrotinas declara_proc {nr_procs_for_curr_proc++;} 
+                          | parte_declara_subrotinas declara_func 
+                          |
+;
 
 // ========== REGRA 12 ========== //
 declara_proc: PROCEDURE 
@@ -194,8 +200,6 @@ declara_proc: PROCEDURE
                sprintf(mepa_buf, "ENPR %d", nivel_lex);
                geraCodigo(rot_str, mepa_buf);
                
-               
-
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
 
@@ -224,10 +228,67 @@ declara_proc: PROCEDURE
                remove_n(&ts, pilha_int_topo(&pilha_amem));
                sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
                pilha_int_desempilhar(&pilha_amem);
+
+               remove_n(&ts, pilha_int_topo(&pilha_procs));
+               pilha_int_desempilhar(&pilha_procs);
                geraCodigo(NULL, mepa_buf);
               }
               PONTO_E_VIRGULA
 ;
+
+// ========== REGRA 13 ========== //
+
+declara_func: FUNCTION
+              IDENT
+              {
+               strcpy(proc_name, token);
+               num_params = 0;
+              }
+              parametros_formais_ou_nada
+              
+              DOIS_PONTOS
+              tipo
+              {
+               sprintf(rot_str, "R%02d", rot_num);
+               sprintf(mepa_buf, "ENPR %d", nivel_lex);
+               geraCodigo(rot_str, mepa_buf);
+               
+               ti.proc.rotulo = rot_num;
+               ti.proc.qtd_parametros = num_params;
+
+               memcpy(ti.proc.lista, lista_parametros, sizeof(struct parametro)*num_params);
+               
+               // for(int i = 0; i < num_params; ++i){
+               //    printf("proc.lista[%d] tem tipo %d e passado por %d \n", i, ti.proc.lista[i].tipo, ti.proc.lista[i].passagem);
+               // }
+               s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
+               push(&ts, s);
+
+               // atribui o deslocamento correto e coloca na pilha os símbolos
+               for(int i = num_params-1; i >= 0; --i){
+                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                  push(&ts, lista_simbolos[i]);
+               }
+               rot_num++; // para o desvio de procedures dentro dessa procedure
+               pilha_int_empilhar(&pilha_amem, num_params);
+
+               // dentro_proc = 1;
+              }
+              PONTO_E_VIRGULA
+
+              bloco
+              {
+               remove_n(&ts, pilha_int_topo(&pilha_amem));
+               sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
+               pilha_int_desempilhar(&pilha_amem);
+
+               remove_n(&ts, pilha_int_topo(&pilha_procs));
+               pilha_int_desempilhar(&pilha_procs);
+               geraCodigo(NULL, mepa_buf);
+              }
+              PONTO_E_VIRGULA
+;
+
 // ========== REGRA 14 ========== //
 parametros_formais_ou_nada: parametros_formais | ;
 

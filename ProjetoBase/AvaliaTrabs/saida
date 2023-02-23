@@ -20,17 +20,16 @@ Exemplo7.01 ... Exemplo7.02 ... 19c19
 < R04: NADA 
 ---
 > R03: NADA 
-Exemplo7.03 ... Exemplo7.04 ... Exemplo7.05 ... syntax error
-3a4,44
-> R01: ENPR 1 
->      AMEM 2
->      DSVS R02
-> R02: NADA 
->      CRVL 1, -5
->      CRCT 2
->      CMME
+Exemplo7.03 ... 11c11
+<      ARMZ 1, 1
+---
+>      ARMZ 1, -4
+Exemplo7.04 ... Exemplo7.05 ... Procedimento tratado como variável!
+11c11
+<      DSVF R03
+---
 >      DSVF R04
->      CRVL 1, -5
+12a13,56
 >      ARMZ 1, -6
 >      CRCT 0
 >      ARMI 1, -4
@@ -63,7 +62,7 @@ Exemplo7.03 ... Exemplo7.04 ... Exemplo7.05 ... syntax error
 >      IMPR
 >      DMEM 2
 >      RTPR 1, 2
-4a46,56
+> R00: NADA 
 >      AMEM 1
 >      CRCT 3
 >      CREN 0, 0
@@ -79,14 +78,20 @@ Exemplo8.10 ... 11c11
 <      DSVF R03
 ---
 >      DSVF R04
-16,18c16,18
+15,18c15,18
+<      ARMI 1, 0
 <      DSVS R04
 < R03: NADA 
 <      CRVL 1, -4
 ---
+>      ARMI 1, -4
 >      DSVS R03
 > R04: NADA 
 >      CRVI 1, -4
+26c26
+<      ARMI 1, 0
+---
+>      ARMI 1, -4
 32c32
 < R04: NADA 
 ---
