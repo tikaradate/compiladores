@@ -26,7 +26,7 @@ void pilha_int_empilhar(struct pilha_int *p, const int num){
 }
 
 int pilha_int_topo(struct pilha_int *p){
-    if (p->tam > 0)
+    if (p->topo > 0)
         return p->p[p->topo-1];
     else {
         fprintf(stderr, "Pilha de inteiros vazia não tem topo!\n");
