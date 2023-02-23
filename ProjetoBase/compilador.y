@@ -29,7 +29,7 @@ int dentro_chamada_proc; // indica se está dentro de uma chamada de procediment
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts, *pilha_atribuicao;
 struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
-struct pilha_int pilha_rotulos, pilha_amem, pilha_params;
+struct pilha_int pilha_rotulos, pilha_amem;
 struct parametro lista_parametros[128];
 union cat_conteudo ti;
 
@@ -194,11 +194,7 @@ declara_proc: PROCEDURE
                sprintf(mepa_buf, "ENPR %d", nivel_lex);
                geraCodigo(rot_str, mepa_buf);
                
-               // atribui o deslocamento correto e coloca na pilha os símbolos
-               for(int i = num_params-1; i >= 0; --i){
-                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
-                  push(&ts, lista_simbolos[i]);
-               }
+               
 
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
@@ -210,15 +206,22 @@ declara_proc: PROCEDURE
                // }
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
+
+               // atribui o deslocamento correto e coloca na pilha os símbolos
+               for(int i = num_params-1; i >= 0; --i){
+                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                  push(&ts, lista_simbolos[i]);
+               }
                rot_num++; // para o desvio de procedures dentro dessa procedure
                pilha_int_empilhar(&pilha_amem, num_params);
+
                // dentro_proc = 1;
               }
 
               PONTO_E_VIRGULA 
               bloco 
               {
-
+               remove_n(&ts, pilha_int_topo(&pilha_amem));
                sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
                pilha_int_desempilhar(&pilha_amem);
                geraCodigo(NULL, mepa_buf);

@@ -1,6 +1,6 @@
 Usage: avaliaTrab.sh <arquivo executavel compilador
-Avaliação: Para os primeiros quatro erros, meio ponto por erro.
-Avaliação: Para os demais, um ponto por erro.
+Avaliaï¿½ï¿½o: Para os primeiros quatro erros, meio ponto por erro.
+Avaliaï¿½ï¿½o: Para os demais, um ponto por erro.
 Exemplo5 ... 2c2,3
 <      AMEM 5
 ---
@@ -20,51 +20,7 @@ Exemplo7.01 ... Exemplo7.02 ... 19c19
 < R04: NADA 
 ---
 > R03: NADA 
-Exemplo7.03 ... 26,27c26,27
-<      ARMZ 1, -4
-<      CRVL 1, -4
----
->      ARMZ 0, 1
->      CRVL 0, 1
-31c31
-<      CRVL 1, -4
----
->      CRVL 0, 1
-37c37
-<      CRVL 1, -4
----
->      CRVL 0, 1
-39c39
-<      CRVL 1, -4
----
->      CRVL 0, 1
-45c45
-<      CRVL 1, -4
----
->      CRVL 0, 1
-51c51
-<      CRVL 1, -4
----
->      CRVL 0, 1
-Exemplo7.04 ... 42c42
-<      CRVL 2, -4
----
->      CRVL 1, -4
-58,59c58,59
-<      ARMZ 1, 0
-<      CRVL 1, 0
----
->      ARMZ 0, 1
->      CRVL 0, 1
-61c61
-<      CRVL 1, 0
----
->      CRVL 0, 1
-63c63
-<      CRVL 1, 0
----
->      CRVL 0, 1
-Exemplo7.05 ... syntax error
+Exemplo7.03 ... Exemplo7.04 ... Exemplo7.05 ... syntax error
 3a4,44
 > R01: ENPR 1 
 >      AMEM 2
