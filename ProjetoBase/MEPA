@@ -16,6 +16,7 @@ R05: NADA
      CRVL 1, -5
      ARMZ 1, 0
 R04: NADA 
+     CRVL 1, 0
      ARMZ 1, -6
      DMEM 1
      RTPR 1, 2
@@ -34,6 +35,7 @@ R08: NADA
      CRVL 1, -4
      ARMZ 1, 0
 R07: NADA 
+     CRVL 1, 0
      ARMZ 1, -6
      DMEM 1
      RTPR 1, 2

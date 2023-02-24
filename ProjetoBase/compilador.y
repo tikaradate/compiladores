@@ -27,10 +27,11 @@ int referencia; // indica se a seção atual é por referência, se não for, é
 int dentro_chamada_proc; // indica se está dentro de uma chamada de procedimento
 int nr_procs_for_curr_proc;
 int nr_forward; // quantidade de forwards na chamada corrente
+int atribui;
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts, *pilha_atribuicao, *pilha_forward;
-struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
+struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, sptr_atribuicao, curr_proc, lista_simbolos[128];
 struct simbolo *forward_busca;
 struct pilha_int pilha_rotulos, pilha_amem, pilha_procs, pilha_qt_forward;
 struct pilha_simb_ptr pilha_ident_esquerdo;
@@ -446,6 +447,7 @@ escreve_itens: escreve_itens VIRGULA expressao {geraCodigo(NULL, "IMPR");}| expr
 atribuicao_proc:  IDENT 
                   { 
                      // printf("Buscando o token %s\n", token);
+                     
                      forward_busca = busca(&pilha_forward, token);
                      sptr_var_proc = busca(&ts, token); 
                      // printf("Variavel %s tem deslocamento %d\n", sptr_var_proc->identificador, sptr_var_proc->conteudo.var.deslocamento);
@@ -459,7 +461,7 @@ atribuicao_proc:  IDENT
                      pilha_simb_ptr_desempilhar(&pilha_ident_esquerdo);
                   };
 
-a_continua: ATRIBUICAO atribuicao |
+a_continua: ATRIBUICAO {atribui = 1;}atribuicao{atribui = 0;} |
             procedimento_sem_parametro |
             procedimento;
 
@@ -504,16 +506,20 @@ procedimento:
             //   printf("curr_proc.categoria = %d\n", curr_proc.categoria);
             //   printf("fun: %d\n", funcao);
             //   printf("proc: %d\n", procedimento);
-              if(sptr_var_proc->categoria == funcao ){
-                  geraCodigo(NULL, "AMEM 1");
-              }
-              
               if(forward_busca){
+               memcpy(&sptr_atribuicao, forward_busca, sizeof(struct simbolo));
                memcpy(&curr_proc, forward_busca, sizeof(struct simbolo));
                sprintf(proc_name, "CHPR R%02d, %d", forward_busca->conteudo.proc.rotulo, nivel_lex);
+               if(forward_busca->categoria == funcao ){
+                  geraCodigo(NULL, "AMEM 1");
+               }
               } else {
+               memcpy(&sptr_atribuicao, sptr_var_proc, sizeof(struct simbolo));
                memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
                sprintf(proc_name, "CHPR R%02d, %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
+               if(sptr_var_proc->categoria == funcao ){
+                  geraCodigo(NULL, "AMEM 1");
+               }
               }
              } 
              ABRE_PARENTESES
@@ -748,6 +754,7 @@ fator : IDENT
          $$ = temp->conteudo.var.tipo;
          // pode ser indireto
          int flag = 0;
+
          if (temp->categoria == variavel){
             
             if (dentro_chamada_proc){
@@ -767,6 +774,8 @@ fator : IDENT
                   exit(1);
                }
             } else if (sptr_var_proc && sptr_var_proc->categoria != funcao){
+               sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.var.deslocamento);
+            } else if (atribui && (sptr_var_proc && sptr_var_proc->categoria == funcao) && (sptr_atribuicao.categoria != funcao)){
                sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.var.deslocamento);
             } else {
                flag = 1;
