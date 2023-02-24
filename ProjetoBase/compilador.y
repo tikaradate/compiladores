@@ -421,7 +421,7 @@ procedimento:
             //   printf("curr_proc.categoria = %d\n", curr_proc.categoria);
             //   printf("fun: %d\n", funcao);
             //   printf("proc: %d\n", procedimento);
-              if(curr_proc.categoria == funcao || sptr->categoria == funcao){
+              if(curr_proc.categoria == funcao ){
                   geraCodigo(NULL, "AMEM 1");
               }
               sprintf(proc_name, "CHPR R%02d, %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
@@ -488,7 +488,7 @@ comando_condicional: IF expressao {
                            exit(1);
                         }
 
-                        sprintf(mepa_buf, "DSVF R%02d", rot_num);
+                        sprintf(mepa_buf, "DSVF R%02d", rot_num+1);
                         geraCodigo(NULL, mepa_buf); // falta testar expressão
 
                         pilha_int_empilhar(&pilha_rotulos, rot_num);
@@ -496,15 +496,15 @@ comando_condicional: IF expressao {
                      }  
                      THEN
                      comando_sem_rotulo_ou_composto {
-                        sprintf(mepa_buf, "DSVS R%02d", pilha_int_topo(&pilha_rotulos)+1);
+                        sprintf(mepa_buf, "DSVS R%02d", pilha_int_topo(&pilha_rotulos));
                         geraCodigo(NULL, mepa_buf);
 
-                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
+                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos)+1);
                         geraCodigo(rot_str, "NADA");
 
                      } 
                      else_ou_nada{
-                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos)+1);
+                        sprintf(rot_str, "R%02d", pilha_int_topo(&pilha_rotulos));
                         geraCodigo(rot_str, "NADA");
 
                         pilha_int_desempilhar(&pilha_rotulos);
@@ -676,7 +676,7 @@ fator : IDENT
             if (sptr->conteudo.param.passagem == parametro_copia)
                sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
             else {
-               if(sptr->conteudo.proc.lista[curr_call_params].passagem == parametro_ref){
+               if(sptr_var_proc->conteudo.proc.lista[curr_call_params].passagem == parametro_ref){
                   sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
                } else {
                   sprintf(mepa_buf, "CRVI %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);

@@ -15,27 +15,27 @@ Gramática
 
     0 $accept: programa $end
 
-    1 $@1: %empty
+    1 $@1: ε
 
     2 programa: $@1 PROGRAM IDENT ABRE_PARENTESES lista_idents FECHA_PARENTESES PONTO_E_VIRGULA bloco PONTO
 
-    3 $@2: %empty
+    3 $@2: ε
 
-    4 $@3: %empty
+    4 $@3: ε
 
     5 bloco: parte_declara_vars $@2 parte_declara_subrotinas $@3 comando_composto
 
-    6 $@4: %empty
+    6 $@4: ε
 
     7 parte_declara_vars: $@4 VAR declara_vars
-    8                   | %empty
+    8                   | ε
 
     9 declara_vars: declara_vars declara_var
    10             | declara_var
 
-   11 $@5: %empty
+   11 $@5: ε
 
-   12 $@6: %empty
+   12 $@6: ε
 
    13 declara_var: $@5 lista_id_var DOIS_PONTOS tipo $@6 PONTO_E_VIRGULA
 
@@ -51,38 +51,38 @@ Gramática
 
    20 parte_declara_subrotinas: parte_declara_subrotinas declara_proc
    21                         | parte_declara_subrotinas declara_func
-   22                         | %empty
+   22                         | ε
 
-   23 $@7: %empty
+   23 $@7: ε
 
-   24 $@8: %empty
+   24 $@8: ε
 
-   25 $@9: %empty
+   25 $@9: ε
 
    26 declara_proc: PROCEDURE IDENT $@7 parametros_formais_ou_nada $@8 PONTO_E_VIRGULA bloco $@9 PONTO_E_VIRGULA
 
-   27 $@10: %empty
+   27 $@10: ε
 
-   28 $@11: %empty
+   28 $@11: ε
 
-   29 $@12: %empty
+   29 $@12: ε
 
    30 declara_func: FUNCTION IDENT $@10 parametros_formais_ou_nada DOIS_PONTOS tipo $@11 PONTO_E_VIRGULA bloco $@12 PONTO_E_VIRGULA
 
    31 parametros_formais_ou_nada: parametros_formais
-   32                           | %empty
+   32                           | ε
 
    33 parametros_formais: ABRE_PARENTESES parametros FECHA_PARENTESES
 
    34 parametros: parametros PONTO_E_VIRGULA secao_parametros
    35           | secao_parametros
 
-   36 $@13: %empty
+   36 $@13: ε
 
    37 secao_parametros: var_ou_nada $@13 lista_idents DOIS_PONTOS tipo
 
    38 var_ou_nada: VAR
-   39            | %empty
+   39            | ε
 
    40 comando_composto: T_BEGIN comandos T_END
 
@@ -94,7 +94,7 @@ Gramática
    45                   | comando_condicional
    46                   | escrita
    47                   | leitura
-   48                   | %empty
+   48                   | ε
 
    49 leitura: READ ABRE_PARENTESES leitura_itens FECHA_PARENTESES
 
@@ -108,7 +108,7 @@ Gramática
    54 escreve_itens: escreve_itens VIRGULA expressao
    55              | expressao
 
-   56 $@14: %empty
+   56 $@14: ε
 
    57 atribuicao_proc: IDENT $@14 a_continua
 
@@ -118,33 +118,33 @@ Gramática
 
    61 atribuicao: expressao
 
-   62 $@15: %empty
+   62 $@15: ε
 
-   63 $@16: %empty
+   63 $@16: ε
 
    64 procedimento: $@15 ABRE_PARENTESES $@16 lista_expressoes FECHA_PARENTESES
 
-   65 procedimento_sem_parametro: %empty
+   65 procedimento_sem_parametro: ε
 
-   66 $@17: %empty
+   66 $@17: ε
 
-   67 $@18: %empty
+   67 $@18: ε
 
    68 comando_repetitivo: WHILE $@17 expressao $@18 DO comando_sem_rotulo_ou_composto
 
    69 comando_sem_rotulo_ou_composto: comando_sem_rotulo
    70                               | comando_composto
 
-   71 $@19: %empty
+   71 $@19: ε
 
-   72 $@20: %empty
+   72 $@20: ε
 
    73 comando_condicional: IF expressao $@19 THEN comando_sem_rotulo_ou_composto $@20 else_ou_nada
 
    74 else_ou_nada: ELSE comando_sem_rotulo_ou_composto
-   75             | %empty
+   75             | ε
 
-   76 $@21: %empty
+   76 $@21: ε
 
    77 lista_expressoes: expressao $@21 VIRGULA lista_expressoes
    78                 | expressao
@@ -164,7 +164,7 @@ Gramática
 
    89 mais_menos_vazio: MAIS
    90                 | MENOS
-   91                 | %empty
+   91                 | ε
 
    92 mais_menos_or: MAIS
    93              | MENOS
@@ -178,9 +178,9 @@ Gramática
    99              | AND
 
   100 procedimento_ou_nada: procedimento
-  101                     | %empty
+  101                     | ε
 
-  102 $@22: %empty
+  102 $@22: ε
 
   103 fator: IDENT $@22 procedimento_ou_nada
   104      | NUMERO
