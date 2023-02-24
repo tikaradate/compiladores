@@ -1,7 +1,10 @@
 program exemplo1 (input, output);
-   procedure p(var g:integer);
+   function p(var g:integer):integer;
+   var b:integer;
    begin
-      p(g)
+      if 2 < 1 then
+         b := 2;
+      p := b;
    end;
 begin
 end.

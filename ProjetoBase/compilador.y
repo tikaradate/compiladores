@@ -28,14 +28,16 @@ int referencia; // indica se a seção atual é por referência, se não for, é
 //                     usada na linha ~470 */
 int dentro_chamada_proc; // indica se está dentro de uma chamada de procedimento
 int nr_procs_for_curr_proc;
+int atribui;
 
 char mepa_buf[128], proc_name[128], idents[128][128];
 struct tabela_de_simbolos *ts, *pilha_atribuicao;
-struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
+struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, *sptr_atribuicao, curr_proc, lista_simbolos[128];
 struct pilha_int pilha_rotulos, pilha_amem, pilha_procs;
 struct pilha_simb_ptr pilha_ident_esquerdo;
 struct parametro lista_parametros[128];
 struct cat_conteudo ti;
+
 
 int str2type(const char *str){
    if (!strcmp(str, "integer")) return pas_integer;
@@ -376,7 +378,7 @@ atribuicao_proc:  IDENT
                      pilha_simb_ptr_desempilhar(&pilha_ident_esquerdo);
                   };
 
-a_continua: ATRIBUICAO atribuicao |
+a_continua: ATRIBUICAO {atribui = 1;}atribuicao {atribui = 0;}|
             procedimento_sem_parametro |
             procedimento;
 
@@ -417,6 +419,7 @@ procedimento:
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
               }
+              sptr_atribuicao = sptr_var_proc;
               memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
             //   printf("curr_proc.categoria = %d\n", curr_proc.categoria);
             //   printf("fun: %d\n", funcao);
@@ -667,6 +670,9 @@ fator : IDENT
                }
             } else if (sptr_var_proc && sptr_var_proc->categoria != funcao){
                sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+            } else if (atribui && (sptr_var_proc && sptr_var_proc->categoria == funcao) && sptr_atribuicao->categoria != funcao){
+               sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+
             } else {
                flag = 1;
             }
