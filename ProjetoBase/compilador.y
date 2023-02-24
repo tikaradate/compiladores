@@ -190,7 +190,8 @@ lista_id_var: lista_id_var VIRGULA IDENT {
 parte_declara_subrotinas: parte_declara_subrotinas declara_proc {nr_procs_for_curr_proc++;} 
                           | parte_declara_subrotinas declara_proc_forward {nr_procs_for_curr_proc++;} 
                           | parte_declara_subrotinas declara_func 
-                          |
+                          | parte_declara_subrotinas declara_func_forward
+                          | 
 ;
 
 // ========== REGRA 12 ========== //
@@ -282,8 +283,9 @@ declara_proc_block:
 ;
 
 // ========== REGRA 13 ========== //
+declara_func: declara_func_header declara_func_block;
 
-declara_func: FUNCTION
+declara_func_header: FUNCTION
               IDENT
               {
                strcpy(proc_name, token);
@@ -294,9 +296,14 @@ declara_func: FUNCTION
               DOIS_PONTOS
               tipo
               {
-               sprintf(rot_str, "R%02d", rot_num);
-               sprintf(mepa_buf, "ENPR %d", nivel_lex);
-               geraCodigo(rot_str, mepa_buf);
+               forward_busca = busca(&pilha_forward, proc_name);
+               if(!forward_busca){
+                  sprintf(rot_buffer, "R%02d", rot_num);
+               } else {
+                  sprintf(rot_buffer, "R%02d", forward_busca->conteudo.proc.rotulo);
+               }
+               sprintf(enpr_buffer, "ENPR %d", nivel_lex);
+               //geraCodigo(rot_str, mepa_buf);
                
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
@@ -308,23 +315,55 @@ declara_func: FUNCTION
                // }
                ti.var.tipo = $6;
                ti.var.deslocamento = -4 - num_params;
-               s = cria_simbolo(proc_name, funcao, nivel_lex, ti);
-               push(&ts, s);
-
-               // atribui o deslocamento correto e coloca na pilha os símbolos
-               for(int i = num_params-1; i >= 0; --i){
-                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
-                  push(&ts, lista_simbolos[i]);
-               }
-               rot_num++; // para o desvio de procedures dentro dessa procedure
-               pilha_int_empilhar(&pilha_amem, num_params);
-
-               // dentro_proc = 1;
+              
               }
               PONTO_E_VIRGULA
+;
 
+declara_func_forward: declara_func_header FORWARD PONTO_E_VIRGULA
+                  {
+                   nr_forward++;
+                   s = cria_simbolo(proc_name, funcao, nivel_lex, ti);
+                   push(&pilha_forward, s);
+
+                  // atribui o deslocamento correto e coloca na pilha os símbolos
+                  for(int i = num_params-1; i >= 0; --i){
+                     lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                     push(&pilha_forward, lista_simbolos[i]);
+                  }
+                  rot_num++; // para o desvio de procedures dentro dessa procedure
+
+                  /* ---------- Não decidi se essa linha é necessária --------- */
+                  // pilha_int_empilhar(&pilha_amem, num_params);
+               }
+;
+
+
+declara_func_block:
+               {
+                geraCodigo(rot_buffer, enpr_buffer);
+
+                pilha_int_empilhar(&pilha_qt_forward, nr_forward);
+                nr_forward = 0;
+
+                s = cria_simbolo(proc_name, funcao, nivel_lex, ti);
+                push(&ts, s);
+
+                // atribui o deslocamento correto e coloca na pilha os símbolos
+                for(int i = num_params-1; i >= 0; --i){
+                  lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                  push(&ts, lista_simbolos[i]);
+                }
+                if(!forward_busca)
+                  rot_num++; // para o desvio de procedures dentro dessa procedure
+
+                pilha_int_empilhar(&pilha_amem, num_params);
+               }
               bloco
               {
+               nr_forward = pilha_int_topo(&pilha_qt_forward);
+               pilha_int_desempilhar(&pilha_qt_forward);
+
                remove_n(&ts, pilha_int_topo(&pilha_amem));
                sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
                pilha_int_desempilhar(&pilha_amem);
@@ -687,20 +726,29 @@ procedimento_ou_nada: procedimento {
 fator : IDENT 
          {
             sptr = busca(&ts, token);
-            pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, busca(&ts, token));
+            forward_busca = busca(&pilha_forward, token);
+            if(!forward_busca)
+               pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, busca(&ts, token));
+            else
+               pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, busca(&pilha_forward, token));
+
 
          } procedimento_ou_nada { 
 
-         if(!sptr){
+         if(!sptr && !forward_busca){
             printf("Variável não encontrada\n");
             exit(1);
          }
-         
+         struct simbolo *temp;
+         if(!sptr)
+            temp = forward_busca;
+         else
+            temp = sptr;
          // printf("Variavel %s nivel %d, deslocamento %d\n", sptr->identificador, sptr->nivel, sptr->conteudo.var.deslocamento);
-         $$ = sptr->conteudo.var.tipo;
+         $$ = temp->conteudo.var.tipo;
          // pode ser indireto
          int flag = 0;
-         if (sptr->categoria == variavel){
+         if (temp->categoria == variavel){
             
             if (dentro_chamada_proc){
                int qtd_params = sptr_var_proc->conteudo.proc.qtd_parametros;
@@ -710,32 +758,32 @@ fator : IDENT
                   exit(1);
                }
                if (sptr_var_proc->conteudo.proc.lista[curr_call_params].passagem == parametro_ref){
-                  sprintf(mepa_buf, "CREN %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+                  sprintf(mepa_buf, "CREN %d, %d", temp->nivel, temp->conteudo.var.deslocamento);
                }
                else if (sptr_var_proc->conteudo.proc.lista[curr_call_params].passagem == parametro_copia){
-                  sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+                  sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.var.deslocamento);
                }else {
                   fprintf(stderr, "INTERNAL ERROR: parametro não é nem copia nem referencia\n");
                   exit(1);
                }
             } else if (sptr_var_proc && sptr_var_proc->categoria != funcao){
-               sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.var.deslocamento);
+               sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.var.deslocamento);
             } else {
                flag = 1;
             }
 
          }
-         else if (sptr->categoria == parametro){
-            if (sptr->conteudo.param.passagem == parametro_copia)
-               sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+         else if (temp->categoria == parametro){
+            if (temp->conteudo.param.passagem == parametro_copia)
+               sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.param.deslocamento);
             else {
                if(sptr_var_proc->conteudo.proc.lista[curr_call_params].passagem == parametro_ref){
-                  sprintf(mepa_buf, "CRVL %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+                  sprintf(mepa_buf, "CRVL %d, %d", temp->nivel, temp->conteudo.param.deslocamento);
                } else {
-                  sprintf(mepa_buf, "CRVI %d, %d", sptr->nivel, sptr->conteudo.param.deslocamento);
+                  sprintf(mepa_buf, "CRVI %d, %d", temp->nivel, temp->conteudo.param.deslocamento);
                }
             }
-         } else if (sptr->categoria != funcao){
+         } else if (temp->categoria != funcao){
             fprintf(stderr, "Procedimento tratado como variável!!\n");
             exit(1);
          } else {

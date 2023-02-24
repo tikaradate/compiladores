@@ -36,7 +36,7 @@ tipo (integer|boolean)
 
 valor_bool (True|False)
 
-ident [a-zA-Z][a-zA-Z0-9]*
+ident [a-zA-Z_][a-zA-Z0-9_]*
 
 numero [0-9]+
 
