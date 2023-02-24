@@ -50,7 +50,7 @@ comentario "(*".*"*)"
 
 {comentario}
 
-program { simbolo  = simb_program;
+(?i:program)  { simbolo  = simb_program;
           strncpy (token, yytext, TAM_TOKEN);
           IMPRIME("program ");
           return PROGRAM;
@@ -302,6 +302,12 @@ write { simbolo = simb_write;
         strncpy(token, yytext, TAM_TOKEN);
         IMPRIME(" write ");
         return WRITE;
+    }
+
+forward { simbolo = simb_forward;
+        strncpy(token, yytext, TAM_TOKEN);
+        IMPRIME(" forward ");
+        return FORWARD;
     }
 
 {valor_bool} { simbolo = simb_valor_bool;

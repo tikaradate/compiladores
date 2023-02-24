@@ -24,15 +24,15 @@ int nivel_lex;
 int pos_var;
 int qt_tipo_atual;
 int referencia; // indica se a seção atual é por referência, se não for, é por cópia
-//int dentro_proc; /* indica se estamos dentro de um procedimento, mas acho que não precisa por conta da forma das structs
-//                     usada na linha ~470 */
 int dentro_chamada_proc; // indica se está dentro de uma chamada de procedimento
 int nr_procs_for_curr_proc;
+int nr_forward; // quantidade de forwards na chamada corrente
 
 char mepa_buf[128], proc_name[128], idents[128][128];
-struct tabela_de_simbolos *ts, *pilha_atribuicao;
+struct tabela_de_simbolos *ts, *pilha_atribuicao, *pilha_forward;
 struct simbolo s, *sptr, *sptr_var_proc, *sptr_chamada_proc, curr_proc, lista_simbolos[128];
-struct pilha_int pilha_rotulos, pilha_amem, pilha_procs;
+struct simbolo *forward_busca;
+struct pilha_int pilha_rotulos, pilha_amem, pilha_procs, pilha_qt_forward;
 struct pilha_simb_ptr pilha_ident_esquerdo;
 struct parametro lista_parametros[128];
 struct cat_conteudo ti;
@@ -43,7 +43,7 @@ int str2type(const char *str){
    return undefined_type;
 }
 short int rot_num;
-char rot_str[4];
+char rot_str[4], rot_buffer[4], enpr_buffer[128];
 int rot_w;
 
 %}
@@ -59,6 +59,7 @@ int rot_w;
 %token IDENT MAIOR MENOR IGUAL MAIS MENOS
 %token VEZES NUMERO DIFERENTE MENOR_IGUAL
 %token MAIOR_IGUAL VALOR_BOOL TIPO READ WRITE
+%token FORWARD
 
 %union{
    char * str;  // define o tipo str
@@ -123,6 +124,7 @@ bloco       :
               comando_composto
 
               {
+
                sprintf(mepa_buf, "DMEM %d", pilha_int_topo(&pilha_amem));
                remove_n(&ts, pilha_int_topo(&pilha_amem));
                geraCodigo(NULL, mepa_buf);
@@ -186,12 +188,15 @@ lista_id_var: lista_id_var VIRGULA IDENT {
 
 // ========== REGRA 11 ========== //
 parte_declara_subrotinas: parte_declara_subrotinas declara_proc {nr_procs_for_curr_proc++;} 
+                          | parte_declara_subrotinas declara_proc_forward {nr_procs_for_curr_proc++;} 
                           | parte_declara_subrotinas declara_func 
                           |
 ;
 
 // ========== REGRA 12 ========== //
-declara_proc: PROCEDURE 
+declara_proc: declara_proc_header declara_proc_block;
+
+declara_proc_header: PROCEDURE 
               IDENT
               {
                strcpy(proc_name, token);
@@ -199,19 +204,52 @@ declara_proc: PROCEDURE
               }
               parametros_formais_ou_nada
               {
-               sprintf(rot_str, "R%02d", rot_num);
-               sprintf(mepa_buf, "ENPR %d", nivel_lex);
-               geraCodigo(rot_str, mepa_buf);
+               /* -------------- checa se já houve um forward dele e pega o rótulo correto -------------- */
+               forward_busca = busca(&pilha_forward, proc_name);
+               if(!forward_busca){
+                  sprintf(rot_buffer, "R%02d", rot_num);
+               } else {
+                  sprintf(rot_buffer, "R%02d", forward_busca->conteudo.proc.rotulo);
+               }
+               sprintf(enpr_buffer, "ENPR %d", nivel_lex);
+               // geraCodigo(rot_str, mepa_buf); movido para depois de sabermos que não é um forward
                
                ti.proc.rotulo = rot_num;
                ti.proc.qtd_parametros = num_params;
 
                memcpy(ti.proc.lista, lista_parametros, sizeof(struct parametro)*num_params);
-               
-               // for(int i = 0; i < num_params; ++i){
-               //    printf("proc.lista[%d] tem tipo %d e passado por %d \n", i, ti.proc.lista[i].tipo, ti.proc.lista[i].passagem);
-               // }
-               printf("nome: %s nivel: %d desloca: %d\n",proc_name, nivel_lex, ti.var.deslocamento);
+              }
+
+              PONTO_E_VIRGULA 
+              
+;
+// adiciona na sua própria lista de símbolos
+declara_proc_forward: declara_proc_header FORWARD PONTO_E_VIRGULA 
+               {
+                  nr_forward++;
+
+                  s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
+                  push(&pilha_forward, s);
+
+                  // atribui o deslocamento correto e coloca na pilha os símbolos
+                  for(int i = num_params-1; i >= 0; --i){
+                     lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
+                     push(&pilha_forward, lista_simbolos[i]);
+                  }
+                  rot_num++; // para o desvio de procedures dentro dessa procedure
+
+                  /* ---------- Não decidi se essa linha é necessária --------- */
+                  // pilha_int_empilhar(&pilha_amem, num_params);
+               }
+;
+
+
+declara_proc_block:
+               {
+               geraCodigo(rot_buffer, enpr_buffer); // veio do declara_proc_header; agora sabemos que não é forward
+
+               pilha_int_empilhar(&pilha_qt_forward, nr_forward); // guarda quantos forwards e zera para contar neste nível léxico
+               nr_forward = 0;
 
                s = cria_simbolo(proc_name, procedimento, nivel_lex, ti);
                push(&ts, s);
@@ -219,18 +257,20 @@ declara_proc: PROCEDURE
                // atribui o deslocamento correto e coloca na pilha os símbolos
                for(int i = num_params-1; i >= 0; --i){
                   lista_simbolos[i].conteudo.param.deslocamento = -4 + (i - (num_params-1)); 
-                  printf(">>>>>>>>> Parametro %s tem deslocamento %d\n", lista_simbolos[i].identificador, lista_simbolos[i].conteudo.param.deslocamento);
                   push(&ts, lista_simbolos[i]);
                }
-               rot_num++; // para o desvio de procedures dentro dessa procedure
+               if(!forward_busca)
+                  rot_num++; // para o desvio de procedures dentro dessa procedure
                pilha_int_empilhar(&pilha_amem, num_params);
 
-               // dentro_proc = 1;
-              }
+               }
 
-              PONTO_E_VIRGULA 
-              bloco 
-              {
+               bloco 
+
+               {
+               nr_forward = pilha_int_topo(&pilha_qt_forward);
+               pilha_int_desempilhar(&pilha_qt_forward);
+
                remove_n(&ts, pilha_int_topo(&pilha_amem));
                sprintf(mepa_buf, "RTPR %d, %d", nivel_lex, pilha_int_topo(&pilha_amem));
                pilha_int_desempilhar(&pilha_amem);
@@ -304,7 +344,7 @@ parametros_formais: ABRE_PARENTESES
                     FECHA_PARENTESES
 ;
 
-parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros
+parametros: parametros PONTO_E_VIRGULA secao_parametros | secao_parametros | 
 ;
 
 secao_parametros : var_ou_nada
@@ -367,9 +407,13 @@ escreve_itens: escreve_itens VIRGULA expressao {geraCodigo(NULL, "IMPR");}| expr
 atribuicao_proc:  IDENT 
                   { 
                      // printf("Buscando o token %s\n", token);
+                     forward_busca = busca(&pilha_forward, token);
                      sptr_var_proc = busca(&ts, token); 
                      // printf("Variavel %s tem deslocamento %d\n", sptr_var_proc->identificador, sptr_var_proc->conteudo.var.deslocamento);
-                     pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, sptr_var_proc);
+                     if(!forward_busca)
+                        pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, sptr_var_proc);
+                     else
+                        pilha_simb_ptr_empilhar(&pilha_ident_esquerdo, forward_busca);
                   } 
                   a_continua
                   { 
@@ -411,22 +455,29 @@ atribuicao: expressao {
 // ========== REGRA 19 ========== //
 procedimento:
              {
+               /*--------- acho que o forward_busca é mantido do atribuicao_proc até aqui?
+                ------------------possível ponto de contenção ----------------*/
                sptr_var_proc = pilha_simb_ptr_topo(&pilha_ident_esquerdo);
-
-              if(!sptr_var_proc){
+              if(!sptr_var_proc && !forward_busca){
                   fprintf(stderr, "COMPILATION ERROR!!!\n Procedure not found.\n"); 
                   exit(1);
               }
-              memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
             //   printf("curr_proc.categoria = %d\n", curr_proc.categoria);
             //   printf("fun: %d\n", funcao);
             //   printf("proc: %d\n", procedimento);
-              if(curr_proc.categoria == funcao ){
+              if(sptr_var_proc->categoria == funcao ){
                   geraCodigo(NULL, "AMEM 1");
               }
-              sprintf(proc_name, "CHPR R%02d, %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
+              
+              if(forward_busca){
+               memcpy(&curr_proc, forward_busca, sizeof(struct simbolo));
+               sprintf(proc_name, "CHPR R%02d, %d", forward_busca->conteudo.proc.rotulo, nivel_lex);
+              } else {
+               memcpy(&curr_proc, sptr_var_proc, sizeof(struct simbolo));
+               sprintf(proc_name, "CHPR R%02d, %d", sptr_var_proc->conteudo.proc.rotulo, nivel_lex);
+              }
              } 
-             ABRE_PARENTESES 
+             ABRE_PARENTESES
              {
                curr_call_params = 0;
                dentro_chamada_proc++;
@@ -528,7 +579,9 @@ lista_expressoes:  expressao
                   {
                      // curr_section_params++;
                      curr_call_params++;
-                  };
+                  }
+                  |
+;
 
 expressao   : expressao_simples { $$ = $1; } 
             | expressao_simples relacao expressao_simples{
@@ -744,9 +797,11 @@ int main (int argc, char** argv) {
  * ------------------------------------------------------------------- */
    inicializa(&ts);
    inicializa(&pilha_atribuicao);
+   inicializa(&pilha_forward);
    pilha_int_inicializar(&pilha_rotulos);
    pilha_int_inicializar(&pilha_amem);
    pilha_int_inicializar(&pilha_procs);
+   pilha_int_inicializar(&pilha_qt_forward);
    pilha_simb_ptr_inicializar(&pilha_ident_esquerdo);
 
    yyin=fp;

@@ -37,6 +37,7 @@ struct procedimento{
     int rotulo;
     int qtd_parametros;
     struct parametro lista[128];
+    int implemented;
 };
 
 /*------------------------*/
